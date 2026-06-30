@@ -10,18 +10,18 @@ window.login = function () {
 
     const password = document.getElementById("password").value;
 
-    if (username !== "agribusinessandtechnologypark") {
+    if (username !== "agribusinesstechnologypark") {
         alert("Username salah!");
         return;
     }
 
-    const email = "agribusinessandtechnologypark@gmail.com";
+    const email = "agribusinesstechnologypark@gmail.com";
 
     signInWithEmailAndPassword(auth, email, password)
 
         .then(() => {
 
-            window.location.href = "dashboard.html";
+            window.location.href = "../admin/dashboard.html";
 
         })
 
