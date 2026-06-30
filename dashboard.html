@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Penjadwalan & Capaian</title>
-    <link rel="stylesheet" href="../assets/css/dashboard.css" />
+    <link rel="stylesheet" href="../dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
 </head>
@@ -19,22 +19,14 @@
                 </button>
                 <div class="header-logo">
                     <span class="logo-icon">📊</span>
-                    <span class="logo-text">Dash<span>board</span></span>
+                    <span class="logo-text">Dash<span>board </span>Agribusiness <span>and</span> Technology <span>Park</span></span>
                 </div>
-            </div>
-            <div class="header-right">
-                <span class="date" id="currentDate"></span>
-                <button onclick="logout()" style="background:#f44336;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:600;">🚪 Logout</button>
             </div>
         </div>
     </header>
 
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="logo">📊 <span>Dash</span>board</div>
-            <div class="sub-logo">Sistem Penjadwalan</div>
-        </div>
         <nav class="menu">
             <a href="#" class="active" data-page="dashboard">
                 <span class="icon">🏠</span><span class="text">Beranda</span>
@@ -51,13 +43,10 @@
             <a href="#" data-page="laporan">
                 <span class="icon">📁</span><span class="text">Laporan</span>
             </a>
-            <a href="#" data-page="pengaturan">
-                <span class="icon">⚙️</span><span class="text">Pengaturan</span>
-            </a>
         </nav>
         <div class="sidebar-footer">
             <p>© 2026 Dashboard</p>
-            <p style="font-size:11px;color:#9fa8da;">v2.0</p>
+            <p style="font-size:11px;color:#9fa8da;">ATP-IPB</p>
         </div>
     </aside>
 
@@ -547,7 +536,7 @@
                                 <th>No</th>
                                 <th>Periode</th>
                                 <th>Jumlah</th>
-                                <th>Target</th>
+                                <th>Target / Kegiatan</th>
                                 <th>Pencapaian</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -616,7 +605,7 @@
                         </div>
                     </div>
                     <div class="form-group" style="flex-direction:row;gap:10px;margin-top:14px;">
-                        <button type="button" class="btn-add" style="flex:1;" onclick="saveCapaian()">💾 Simpan</button>
+                        <button type="button" class="btn-add" style="flex:1;" onclick="simpanCapaian()">💾 Simpan</button>
                         <button type="button" class="btn-delete" id="btnDeleteCapaian" onclick="hapusCapaian()" style="display:none;">🗑️ Hapus</button>
                     </div>
                 </form>
@@ -641,7 +630,7 @@
                             <option value="ruang">🏢 Pemakaian Ruang</option>
                             <option value="balai">🏛️ Balai BRI</option>
                             <option value="program">📊 Per Program</option>
-                            <option value="capaian">📈 Capaian</option>
+                            <option value="capaian" selected>📈 Capaian</option>
                             <option value="kalender">📅 Kalender</option>
                         </select>
                     </div>
@@ -722,19 +711,6 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- HALAMAN: PENGATURAN -->
-        <!-- ========================================== -->
-        <div id="page-pengaturan" class="page-content">
-            <div class="card" style="padding:30px;text-align:center;">
-                <div style="font-size:60px;margin-bottom:16px;">⚙️</div>
-                <h2 style="color:#1a237e;">Halaman Pengaturan</h2>
-                <p style="color:#888;margin:10px 0 20px;">Fitur pengaturan sedang dalam pengembangan</p>
-                <button class="btn-add" onclick="alert('Fitur pengaturan akan segera hadir!')">💾 Simpan</button>
-                <button class="btn-delete" onclick="resetAllData()" style="margin-left:10px;">🗑️ Reset Semua Data</button>
-            </div>
-        </div>
-
     </main>
 
     <!-- ===== MODAL EVENT ===== -->
@@ -791,210 +767,377 @@
 
 <!-- ===== SCRIPT OVERRIDE UNTUK FIX ===== -->
 <script>
-// ============================================
-// OVERRIDE FUNGSI TAMBAH JADWAL
-// ============================================
+    // ============================================
+    // FUNGSI SIMPAN CAPAIAN
+    // ============================================
+    function simpanCapaian() {
+        console.log('🟢 simpanCapaian dipanggil!');
+        try {
+            const index = document.getElementById('capaianIndex').value;
+            const bulan = document.getElementById('capaianBulan').value;
+            const jumlah = parseInt(document.getElementById('capaianJumlah').value);
+            const target = parseInt(document.getElementById('capaianTarget').value);
+            const mahasiswa = parseInt(document.getElementById('capaianMahasiswa').value) || 0;
+            const dosen = parseInt(document.getElementById('capaianDosen').value) || 0;
+            const umum = parseInt(document.getElementById('capaianUmum').value) || 0;
+            const instansi = parseInt(document.getElementById('capaianInstansi').value) || 0;
+            
+            if (!bulan) { alert('⚠️ Bulan harus dipilih!'); return; }
+            if (isNaN(jumlah) || jumlah <= 0) { alert('⚠️ Jumlah Pengunjung harus diisi dan lebih dari 0!'); return; }
+            if (isNaN(target) || target <= 0) { alert('⚠️ Target harus diisi dan lebih dari 0!'); return; }
+            
+            const totalKategori = mahasiswa + dosen + umum + instansi;
+            if (totalKategori > 0 && totalKategori !== jumlah) {
+                if (!confirm(`⚠️ Total kategori (${totalKategori}) tidak sama dengan Jumlah (${jumlah}).\nApakah Anda yakin ingin menyimpan?`)) {
+                    return;
+                }
+            }
+            
+            const existingIndex = capaianData.findIndex(d => d.bulan === bulan);
+            
+            if (index === '') {
+                if (existingIndex !== -1) { alert(`⚠️ Data untuk bulan ${bulan} sudah ada!`); return; }
+                capaianData.push({ bulan, jumlah, target, mahasiswa, dosen, umum, instansi });
+                alert('✅ Data capaian berhasil ditambahkan!');
+            } else {
+                if (existingIndex !== -1 && existingIndex !== parseInt(index)) { alert(`⚠️ Data untuk bulan ${bulan} sudah ada!`); return; }
+                capaianData[parseInt(index)] = { bulan, jumlah, target, mahasiswa, dosen, umum, instansi };
+                alert('✅ Data capaian berhasil diupdate!');
+            }
+            
+            closeCapaianModal();
+            renderCapaianTable();
+            updateAllCharts();
+            simpanSemuaData();
+        } catch(e) {
+            console.error('❌ Error:', e);
+            alert('❌ Terjadi error: ' + e.message);
+        }
+    }
 
-// Pastikan fungsi global tersedia
-window.tambahJadwal = function() {
-    console.log('🟢 tambahJadwal dari HTML override');
-    
-    try {
+    function closeCapaianModal() {
+        const modal = document.getElementById('capaianModal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+    }
+
+    function renderCapaianTable() {
+        renderCapaianTableByPeriod(currentPeriodFull || 'bulanan');
+    }
+
+    window.tambahJadwal = function() {
+        console.log('🟢 tambahJadwal dari HTML override');
+        try {
+            const modal = document.getElementById('jadwalModal');
+            if (!modal) { alert('Modal tidak ditemukan!'); return; }
+            document.getElementById('modalJadwalTitle').textContent = 'Tambah Jadwal';
+            document.getElementById('jadwalId').value = '';
+            document.getElementById('jadwalJenis').value = '';
+            document.getElementById('btnDeleteJadwal').style.display = 'none';
+            document.getElementById('fNamaTamu').value = '';
+            document.getElementById('fInstansi').value = '';
+            document.getElementById('fJumlahPengunjung').value = '';
+            document.getElementById('fTujuan').value = '';
+            document.getElementById('fKegiatanRuang').value = '';
+            document.getElementById('fKapasitas').value = '';
+            document.getElementById('fKegiatanBalai').value = '';
+            document.getElementById('fJenisKegiatan').value = '';
+            document.getElementById('fNamaProgram').value = '';
+            document.getElementById('fKegiatanProgram').value = '';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fTanggal').value = today;
+            document.getElementById('fWaktu').value = '';
+            document.getElementById('fRuangan').value = '';
+            document.getElementById('fTempat').value = '';
+            document.getElementById('fPic').value = '';
+            document.getElementById('formJenis').value = 'kunjungan';
+            if (typeof updateDropdowns === 'function') updateDropdowns();
+            if (typeof ubahFormJadwal === 'function') ubahFormJadwal();
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+        } catch(e) {
+            console.error('❌ Error:', e);
+            alert('Error: ' + e.message);
+        }
+    };
+
+    window.closeJadwalModal = function() {
         const modal = document.getElementById('jadwalModal');
-        if (!modal) {
-            alert('Modal tidak ditemukan!');
-            return;
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
         }
-        
-        // Reset form
-        document.getElementById('modalJadwalTitle').textContent = 'Tambah Jadwal';
-        document.getElementById('jadwalId').value = '';
-        document.getElementById('jadwalJenis').value = '';
-        document.getElementById('btnDeleteJadwal').style.display = 'none';
-        
-        // Reset semua input
-        document.getElementById('fNamaTamu').value = '';
-        document.getElementById('fInstansi').value = '';
-        document.getElementById('fJumlahPengunjung').value = '';
-        document.getElementById('fTujuan').value = '';
-        document.getElementById('fKegiatanRuang').value = '';
-        document.getElementById('fKapasitas').value = '';
-        document.getElementById('fKegiatanBalai').value = '';
-        document.getElementById('fJenisKegiatan').value = '';
-        document.getElementById('fNamaProgram').value = '';
-        document.getElementById('fKegiatanProgram').value = '';
-        
-        // Set tanggal hari ini
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('fTanggal').value = today;
-        document.getElementById('fWaktu').value = '';
-        document.getElementById('fRuangan').value = '';
-        document.getElementById('fTempat').value = '';
-        document.getElementById('fPic').value = '';
-        
-        // Set default jenis
-        document.getElementById('formJenis').value = 'kunjungan';
-        
-        // Update dropdown
-        if (typeof updateDropdowns === 'function') {
-            updateDropdowns();
-        }
-        
-        // Tampilkan field sesuai jenis
-        if (typeof ubahFormJadwal === 'function') {
-            ubahFormJadwal();
-        } else {
-            // Fallback
-            document.getElementById('fieldKunjungan').style.display = 'block';
-            document.getElementById('fieldRuang').style.display = 'none';
-            document.getElementById('fieldBalai').style.display = 'none';
-            document.getElementById('fieldProgram').style.display = 'none';
-        }
-        
-        // Tampilkan modal
-        modal.style.display = 'flex';
-        modal.classList.add('active');
-        
-        console.log('✅ Modal terbuka!');
-        
-    } catch(e) {
-        console.error('❌ Error:', e);
-        alert('Error: ' + e.message);
-    }
-};
+    };
 
-// Override close modal
-window.closeJadwalModal = function() {
-    const modal = document.getElementById('jadwalModal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('active');
-    }
-};
-
-// Override ubahFormJadwal
-window.ubahFormJadwal = function() {
-    const jenis = document.getElementById('formJenis').value;
-    
-    document.getElementById('fieldKunjungan').style.display = 'none';
-    document.getElementById('fieldRuang').style.display = 'none';
-    document.getElementById('fieldBalai').style.display = 'none';
-    document.getElementById('fieldProgram').style.display = 'none';
-    
-    if (jenis === 'kunjungan') {
-        document.getElementById('fieldKunjungan').style.display = 'block';
-    } else if (jenis === 'ruang') {
-        document.getElementById('fieldRuang').style.display = 'block';
-    } else if (jenis === 'balai') {
-        document.getElementById('fieldBalai').style.display = 'block';
-    } else if (jenis === 'program') {
-        document.getElementById('fieldProgram').style.display = 'block';
-    }
-};
-
-// Override saveJadwal
-window.saveJadwal = function() {
-    console.log('🟢 saveJadwal dari HTML override');
-    
-    try {
+    window.ubahFormJadwal = function() {
         const jenis = document.getElementById('formJenis').value;
-        const tanggal = document.getElementById('fTanggal').value;
-        const waktu = document.getElementById('fWaktu').value;
-        const ruangan = document.getElementById('fRuangan').value;
-        const tempat = document.getElementById('fTempat').value;
-        const pic = document.getElementById('fPic').value;
-        
-        if (!tanggal || !waktu || !ruangan || !tempat || !pic) {
-            alert('⚠️ Semua field wajib diisi!');
-            return;
-        }
-        
-        let dataBaru = { tanggal, waktu, ruangan, tempat, pic };
-        
-        if (jenis === 'kunjungan') {
-            const nama = document.getElementById('fNamaTamu').value.trim();
-            const instansi = document.getElementById('fInstansi').value;
-            const jumlah = document.getElementById('fJumlahPengunjung').value;
-            const tujuan = document.getElementById('fTujuan').value.trim();
-            
-            if (!nama || !jumlah) {
-                alert('⚠️ Nama Tamu dan Jumlah Pengunjung wajib diisi!');
-                return;
-            }
-            
-            dataBaru = { ...dataBaru, nama, instansi: instansi || 'Umum', jumlahPengunjung: parseInt(jumlah) || 0, tujuan: tujuan || '-' };
-            
-            if (typeof kunjunganData !== 'undefined' && typeof nextKunjunganId !== 'undefined') {
-                kunjunganData.push({ id: nextKunjunganId++, ...dataBaru });
-                if (typeof renderKunjunganTable === 'function') renderKunjunganTable();
-            }
-            
-        } else if (jenis === 'ruang') {
-            const kegiatan = document.getElementById('fKegiatanRuang').value.trim();
-            const kapasitas = document.getElementById('fKapasitas').value;
-            
-            if (!kegiatan || !kapasitas) {
-                alert('⚠️ Nama Kegiatan dan Kapasitas wajib diisi!');
-                return;
-            }
-            
-            dataBaru = { ...dataBaru, kegiatan, kapasitas: parseInt(kapasitas) };
-            
-            if (typeof ruangData !== 'undefined' && typeof nextRuangId !== 'undefined') {
-                ruangData.push({ id: nextRuangId++, ...dataBaru });
-                if (typeof renderRuangTable === 'function') renderRuangTable();
-            }
-            
-        } else if (jenis === 'balai') {
-            const kegiatan = document.getElementById('fKegiatanBalai').value.trim();
-            const jenisKeg = document.getElementById('fJenisKegiatan').value.trim();
-            
-            if (!kegiatan || !jenisKeg) {
-                alert('⚠️ Nama Kegiatan dan Jenis Kegiatan wajib diisi!');
-                return;
-            }
-            
-            dataBaru = { ...dataBaru, kegiatan, jenis: jenisKeg };
-            
-            if (typeof balaiData !== 'undefined' && typeof nextBalaiId !== 'undefined') {
-                balaiData.push({ id: nextBalaiId++, ...dataBaru });
-                if (typeof renderBalaiTable === 'function') renderBalaiTable();
-            }
-            
-        } else if (jenis === 'program') {
-            const program = document.getElementById('fNamaProgram').value.trim();
-            const kegiatan = document.getElementById('fKegiatanProgram').value.trim();
-            
-            if (!program || !kegiatan) {
-                alert('⚠️ Nama Program dan Kegiatan wajib diisi!');
-                return;
-            }
-            
-            dataBaru = { ...dataBaru, program, kegiatan, lokasi: tempat };
-            
-            if (typeof programData !== 'undefined' && typeof nextProgramId !== 'undefined') {
-                programData.push({ id: nextProgramId++, ...dataBaru });
-                if (typeof renderProgramTable === 'function') renderProgramTable();
-            }
-        }
-        
-        // Refresh semua tampilan
-        if (typeof renderRingkasanJadwal === 'function') renderRingkasanJadwal();
-        if (typeof updateStats === 'function') updateStats();
-        if (typeof sinkronkanJadwalKeKalender === 'function') sinkronkanJadwalKeKalender();
-        if (typeof sinkronkanKunjunganKeCapaian === 'function') sinkronkanKunjunganKeCapaian();
-        if (typeof simpanSemuaData === 'function') simpanSemuaData();
-        
-        alert('✅ Data berhasil disimpan!');
-        closeJadwalModal();
-        
-    } catch(e) {
-        console.error('❌ Error:', e);
-        alert('Error: ' + e.message);
-    }
-};
+        document.getElementById('fieldKunjungan').style.display = 'none';
+        document.getElementById('fieldRuang').style.display = 'none';
+        document.getElementById('fieldBalai').style.display = 'none';
+        document.getElementById('fieldProgram').style.display = 'none';
+        if (jenis === 'kunjungan') document.getElementById('fieldKunjungan').style.display = 'block';
+        else if (jenis === 'ruang') document.getElementById('fieldRuang').style.display = 'block';
+        else if (jenis === 'balai') document.getElementById('fieldBalai').style.display = 'block';
+        else if (jenis === 'program') document.getElementById('fieldProgram').style.display = 'block';
+    };
 
-console.log('✅ Override functions siap!');
+    window.saveJadwal = function() {
+        console.log('🟢 saveJadwal dari HTML override');
+        try {
+            const id = document.getElementById('jadwalId').value;
+            const jenis = document.getElementById('formJenis').value;
+            const isEdit = id !== '';
+            const tanggal = document.getElementById('fTanggal').value;
+            const waktu = document.getElementById('fWaktu').value;
+            const ruangan = document.getElementById('fRuangan').value;
+            const tempat = document.getElementById('fTempat').value;
+            const pic = document.getElementById('fPic').value;
+            if (!tanggal || !waktu || !ruangan || !tempat || !pic) {
+                alert('⚠️ Semua field wajib diisi!');
+                return;
+            }
+            let dataBaru = { tanggal, waktu, ruangan, tempat, pic };
+            let success = false, message = '';
+            if (jenis === 'kunjungan') {
+                const nama = document.getElementById('fNamaTamu').value.trim();
+                const instansi = document.getElementById('fInstansi').value;
+                const jumlah = parseInt(document.getElementById('fJumlahPengunjung').value);
+                const tujuan = document.getElementById('fTujuan').value.trim();
+                if (!nama) { alert('⚠️ Nama Tamu wajib diisi!'); return; }
+                if (isNaN(jumlah) || jumlah <= 0) { alert('⚠️ Jumlah Pengunjung harus diisi dan lebih dari 0!'); return; }
+                dataBaru = { ...dataBaru, nama, instansi: instansi || 'Umum', jumlahPengunjung: jumlah, tujuan: tujuan || '-', id: isEdit ? parseInt(id) : nextKunjunganId++ };
+                if (isEdit) {
+                    const index = kunjunganData.findIndex(d => d.id === parseInt(id));
+                    if (index !== -1) { kunjunganData[index] = dataBaru; success = true; message = '✅ Data kunjungan berhasil diupdate!'; }
+                    else { alert('❌ Data tidak ditemukan!'); return; }
+                } else { kunjunganData.push(dataBaru); success = true; message = '✅ Data kunjungan berhasil ditambahkan!'; }
+                renderKunjunganTable();
+            } else if (jenis === 'ruang') {
+                const kegiatan = document.getElementById('fKegiatanRuang').value.trim();
+                const kapasitas = parseInt(document.getElementById('fKapasitas').value);
+                if (!kegiatan) { alert('⚠️ Nama Kegiatan wajib diisi!'); return; }
+                if (isNaN(kapasitas) || kapasitas <= 0) { alert('⚠️ Kapasitas harus diisi dan lebih dari 0!'); return; }
+                dataBaru = { ...dataBaru, kegiatan, kapasitas, id: isEdit ? parseInt(id) : nextRuangId++ };
+                if (isEdit) {
+                    const index = ruangData.findIndex(d => d.id === parseInt(id));
+                    if (index !== -1) { ruangData[index] = dataBaru; success = true; message = '✅ Data ruang berhasil diupdate!'; }
+                    else { alert('❌ Data tidak ditemukan!'); return; }
+                } else { ruangData.push(dataBaru); success = true; message = '✅ Data ruang berhasil ditambahkan!'; }
+                renderRuangTable();
+            } else if (jenis === 'balai') {
+                const kegiatan = document.getElementById('fKegiatanBalai').value.trim();
+                const jenisKeg = document.getElementById('fJenisKegiatan').value.trim();
+                if (!kegiatan || !jenisKeg) { alert('⚠️ Nama Kegiatan dan Jenis Kegiatan wajib diisi!'); return; }
+                dataBaru = { ...dataBaru, kegiatan, jenis: jenisKeg, id: isEdit ? parseInt(id) : nextBalaiId++ };
+                if (isEdit) {
+                    const index = balaiData.findIndex(d => d.id === parseInt(id));
+                    if (index !== -1) { balaiData[index] = dataBaru; success = true; message = '✅ Data balai berhasil diupdate!'; }
+                    else { alert('❌ Data tidak ditemukan!'); return; }
+                } else { balaiData.push(dataBaru); success = true; message = '✅ Data balai berhasil ditambahkan!'; }
+                renderBalaiTable();
+            } else if (jenis === 'program') {
+                const program = document.getElementById('fNamaProgram').value.trim();
+                const kegiatan = document.getElementById('fKegiatanProgram').value.trim();
+                if (!program || !kegiatan) { alert('⚠️ Nama Program dan Kegiatan wajib diisi!'); return; }
+                dataBaru = { ...dataBaru, program, kegiatan, lokasi: tempat, id: isEdit ? parseInt(id) : nextProgramId++ };
+                if (isEdit) {
+                    const index = programData.findIndex(d => d.id === parseInt(id));
+                    if (index !== -1) { programData[index] = dataBaru; success = true; message = '✅ Data program berhasil diupdate!'; }
+                    else { alert('❌ Data tidak ditemukan!'); return; }
+                } else { programData.push(dataBaru); success = true; message = '✅ Data program berhasil ditambahkan!'; }
+                renderProgramTable();
+            }
+            if (success) {
+                renderRingkasanJadwal();
+                updateStats();
+                sinkronkanJadwalKeKalender();
+                sinkronkanKunjunganKeCapaian();
+                simpanSemuaData();
+                alert(message);
+                closeJadwalModal();
+            }
+        } catch(e) {
+            console.error('❌ Error:', e);
+            alert('Error: ' + e.message);
+        }
+    };
+
+    window.editJadwal = function(jenis, id) {
+        console.log('🟢 editJadwal dipanggil!', jenis, id);
+        try {
+            let data, title;
+            const modal = document.getElementById('jadwalModal');
+            if (!modal) { alert('Modal tidak ditemukan!'); return; }
+            switch(jenis) {
+                case 'kunjungan':
+                    data = kunjunganData.find(d => d.id === id);
+                    if (!data) { alert('Data kunjungan tidak ditemukan!'); return; }
+                    title = 'Edit Jadwal Kunjungan';
+                    document.getElementById('formJenis').value = 'kunjungan';
+                    document.getElementById('fNamaTamu').value = data.nama || '';
+                    document.getElementById('fInstansi').value = data.instansi || '';
+                    document.getElementById('fJumlahPengunjung').value = data.jumlahPengunjung || 0;
+                    document.getElementById('fTujuan').value = data.tujuan || '';
+                    document.getElementById('fKegiatanRuang').value = '';
+                    document.getElementById('fKapasitas').value = '';
+                    document.getElementById('fKegiatanBalai').value = '';
+                    document.getElementById('fJenisKegiatan').value = '';
+                    document.getElementById('fNamaProgram').value = '';
+                    document.getElementById('fKegiatanProgram').value = '';
+                    break;
+                case 'ruang':
+                    data = ruangData.find(d => d.id === id);
+                    if (!data) { alert('Data ruang tidak ditemukan!'); return; }
+                    title = 'Edit Jadwal Pemakaian Ruang';
+                    document.getElementById('formJenis').value = 'ruang';
+                    document.getElementById('fKegiatanRuang').value = data.kegiatan || '';
+                    document.getElementById('fKapasitas').value = data.kapasitas || '';
+                    document.getElementById('fNamaTamu').value = '';
+                    document.getElementById('fInstansi').value = '';
+                    document.getElementById('fJumlahPengunjung').value = '';
+                    document.getElementById('fTujuan').value = '';
+                    document.getElementById('fKegiatanBalai').value = '';
+                    document.getElementById('fJenisKegiatan').value = '';
+                    document.getElementById('fNamaProgram').value = '';
+                    document.getElementById('fKegiatanProgram').value = '';
+                    break;
+                case 'balai':
+                    data = balaiData.find(d => d.id === id);
+                    if (!data) { alert('Data balai tidak ditemukan!'); return; }
+                    title = 'Edit Jadwal Balai BRI';
+                    document.getElementById('formJenis').value = 'balai';
+                    document.getElementById('fKegiatanBalai').value = data.kegiatan || '';
+                    document.getElementById('fJenisKegiatan').value = data.jenis || '';
+                    document.getElementById('fNamaTamu').value = '';
+                    document.getElementById('fInstansi').value = '';
+                    document.getElementById('fJumlahPengunjung').value = '';
+                    document.getElementById('fTujuan').value = '';
+                    document.getElementById('fKegiatanRuang').value = '';
+                    document.getElementById('fKapasitas').value = '';
+                    document.getElementById('fNamaProgram').value = '';
+                    document.getElementById('fKegiatanProgram').value = '';
+                    break;
+                case 'program':
+                    data = programData.find(d => d.id === id);
+                    if (!data) { alert('Data program tidak ditemukan!'); return; }
+                    title = 'Edit Jadwal Per Program';
+                    document.getElementById('formJenis').value = 'program';
+                    document.getElementById('fNamaProgram').value = data.program || '';
+                    document.getElementById('fKegiatanProgram').value = data.kegiatan || '';
+                    document.getElementById('fNamaTamu').value = '';
+                    document.getElementById('fInstansi').value = '';
+                    document.getElementById('fJumlahPengunjung').value = '';
+                    document.getElementById('fTujuan').value = '';
+                    document.getElementById('fKegiatanRuang').value = '';
+                    document.getElementById('fKapasitas').value = '';
+                    document.getElementById('fKegiatanBalai').value = '';
+                    document.getElementById('fJenisKegiatan').value = '';
+                    break;
+                default:
+                    alert('Jenis jadwal tidak dikenal!');
+                    return;
+            }
+            document.getElementById('modalJadwalTitle').textContent = title;
+            document.getElementById('jadwalId').value = id;
+            document.getElementById('jadwalJenis').value = jenis;
+            document.getElementById('btnDeleteJadwal').style.display = 'inline-block';
+            document.getElementById('fTanggal').value = data.tanggal || '';
+            document.getElementById('fWaktu').value = data.waktu || '';
+            document.getElementById('fRuangan').value = data.ruangan || data.lokasi || '';
+            document.getElementById('fTempat').value = data.tempat || data.lokasi || '';
+            document.getElementById('fPic').value = data.pic || '';
+            updateDropdowns();
+            ubahFormJadwal();
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+        } catch(e) {
+            console.error('❌ Error di editJadwal:', e);
+            alert('Error: ' + e.message);
+        }
+    };
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (sidebar) sidebar.classList.toggle('active');
+        if (overlay) overlay.classList.toggle('active');
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (sidebar) sidebar.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    function switchMenu(page) {
+        console.log('Switch menu ke:', page);
+        document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById('page-' + page);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.menu a').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.menu a[data-page="' + page + '"]').forEach(el => el.classList.add('active'));
+    }
+
+    function switchTab(tab) {
+        console.log('Switch tab ke:', tab);
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById('tab-' + tab);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn[data-tab="' + tab + '"]').forEach(el => el.classList.add('active'));
+    }
+
+    function switchMasterTab(tab) {
+        document.querySelectorAll('.master-tab').forEach(el => el.style.display = 'none');
+        const target = document.getElementById('master-' + tab);
+        if (target) target.style.display = 'block';
+        document.querySelectorAll('#masterModal .tab-btn').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('#masterModal .tab-btn').forEach(el => {
+            if (el.textContent.toLowerCase().includes(tab)) el.classList.add('active');
+        });
+    }
+
+    function printJadwal() { alert('🖨️ Cetak jadwal'); }
+    function bukaMasterData() { document.getElementById('masterModal').style.display = 'flex'; }
+    function refreshKalenderFull() { alert('🔄 Kalender direfresh'); }
+    function ubahFilterCapaian() { 
+        const val = document.getElementById('capaianFilter').value;
+        ubahGrafikCapaian(val);
+    }
+    function ubahGrafikCapaian(p) { 
+        console.log('🔄 Ubah grafik capaian ke:', p);
+        if (typeof window.ubahGrafikCapaianJS === 'function') {
+            window.ubahGrafikCapaianJS(p);
+        } else {
+            alert('Fungsi ubahGrafikCapaianJS belum dimuat!');
+        }
+    }
+    function ubahGrafikLaporan(p) { console.log('Grafik laporan:', p); }
+    function generateLaporan() { 
+        if (typeof window.generateLaporanJS === 'function') {
+            window.generateLaporanJS();
+        } else {
+            alert('Fungsi generateLaporanJS belum dimuat!');
+        }
+    }
+    function toggleDateRange() {
+        const val = document.getElementById('laporanPeriode').value;
+        document.getElementById('dateRangeGroup').style.display = (val === 'custom') ? 'flex' : 'none';
+    }
+    function exportPDF() { alert('📄 Export PDF'); }
+    function exportExcel() { alert('📊 Export Excel'); }
+    function printLaporan() { alert('🖨️ Cetak laporan'); }
+    function exportWord() { alert('📝 Export Word'); }
+    function refreshCapaian() { 
+        renderCapaianTable();
+        updateAllCharts();
+        alert('🔄 Data capaian berhasil direfresh!');
+    }
+
+    console.log('✅ Semua fungsi override aktif!');
 </script>
     
 </body>
