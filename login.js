@@ -10,7 +10,7 @@ window.login = function () {
 
     const password = document.getElementById("password").value;
 
-    if (username !== "agribusinesstechnologypark") {
+    if (username !== "agribusinessandtechnologypark") {
         alert("Username salah!");
         return;
     }
