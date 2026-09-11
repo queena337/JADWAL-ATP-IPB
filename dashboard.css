@@ -38,6 +38,30 @@ body {
   margin: 0 auto;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-user-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a237e;
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+
+.header-user-button:hover {
+  background: #eef2ff;
+  color: #1a237e;
+}
+
 .header-left {
   display: flex;
   align-items: center;
