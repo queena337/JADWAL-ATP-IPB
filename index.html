@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Admin</title>
+    <link rel="stylesheet" href="login.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <form class="login-box" id="loginForm">
+      <h2>Login Admin</h2>
+
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+
+      <!-- ✅ HAPUS onclick, TAMBAHKAN id -->
+      <button type="submit" id="loginBtn">Login</button>
+
+      <!-- ✅ TAMBAHKAN INI UNTUK ERROR -->
+      <div
+        id="errorMessage"
+        style="display: none; color: red; margin-top: 10px"
+      ></div>
+    </form>
+
+    <script type="module" src="login.js"></script>
+  </body>
+</html>
