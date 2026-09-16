@@ -1717,29 +1717,74 @@ tbody tr:hover {
 @media (max-width: 768px) {
   body {
     padding-top: 60px;
+    display: block;
   }
   .header-top {
     height: 60px;
     padding: 0 16px;
   }
+  .header-container {
+    width: 100%;
+    min-width: 0;
+  }
+  .header-left {
+    gap: 10px;
+    flex: 1 1 auto;
+  }
   .hamburger {
     display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 0;
+  }
+  .hamburger span {
+    width: 24px;
+    height: 3px;
+    background: #fff;
+    border-radius: 3px;
+  }
+  .header-logo {
+    gap: 6px;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .header-logo .logo-icon {
+    font-size: 20px;
+    line-height: 1;
   }
   .header-logo .logo-text {
-    font-size: 16px;
+    font-size: 14px;
+    line-height: 1.3;
+    white-space: normal;
   }
-  .header-right .date {
-    font-size: 11px;
+  .header-right {
+    display: flex;
+    width: auto;
   }
 
   .sidebar {
-    width: 280px;
+    width: min(280px, 85vw);
     top: 60px;
-    transform: translateX(-100%);
+    left: 0;
+    transform: translateX(-105%);
     padding: 16px;
+    border-radius: 0 12px 12px 0;
   }
   .sidebar.open {
     transform: translateX(0);
+  }
+  .menu a {
+    font-size: 14px;
+    padding: 11px 12px;
+  }
+  .overlay {
+    top: 60px;
   }
   .overlay.active {
     display: block;
@@ -1840,6 +1885,14 @@ tbody tr:hover {
     flex: 1;
     text-align: center;
   }
+
+  .calendar-grid {
+    overflow-x: auto;
+  }
+  .calendar-grid .day,
+  .calendar-grid-full .day {
+    min-height: 34px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1886,6 +1939,64 @@ tbody tr:hover {
   }
   .jadwal-card .table-wrapper {
     max-height: 160px;
+  }
+}
+
+/* ===== MOBILE UX HARDENING ===== */
+@media (max-width: 768px) {
+  .header-container {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left {
+    flex: 1 1 auto;
+  }
+  .header-logo {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .header-logo .logo-text {
+    font-size: 14px;
+    white-space: normal;
+  }
+  .header-right {
+    width: 100%;
+    justify-content: center;
+  }
+  .header-user-button {
+    width: 100%;
+    justify-content: center;
+  }
+  table,
+  .table-wrapper {
+    min-width: 100%;
+  }
+  .main-content {
+    overflow-x: hidden;
+  }
+  .page-content {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-top {
+    height: 62px;
+  }
+  .main-content {
+    padding: 10px;
+  }
+  .sub-header {
+    padding: 14px 16px;
+  }
+  .sub-header h1 {
+    font-size: 20px;
+  }
+  .sub-header p {
+    font-size: 12px;
+  }
+  .stats {
+    gap: 12px;
   }
 }
 /* ===== TAMBAHAN UNTUK CAPAIAN MINGGUAN ===== */

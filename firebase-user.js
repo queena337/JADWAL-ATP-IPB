@@ -6,5 +6,6 @@ startRealtimeDataSync(
   },
   (error) => {
     console.error("Gagal membaca data realtime untuk user:", error);
+    window.setLiveStatus?.("offline", "Koneksi terputus");
   },
 );

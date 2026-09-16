@@ -16,7 +16,14 @@
     <header class="header-top">
       <div class="header-container">
         <div class="header-left">
-          <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+          <button
+            class="hamburger"
+            id="hamburgerBtn"
+            onclick="toggleSidebar()"
+            aria-label="Buka menu"
+            aria-controls="sidebar"
+            aria-expanded="false"
+          >
             <span></span><span></span><span></span>
           </button>
           <div class="header-logo">
@@ -28,6 +35,10 @@
           </div>
         </div>
         <div class="header-right">
+          <span class="date">
+            <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+            <strong id="currentDate"></strong>
+          </span>
           <a class="header-user-button" href="user.html" target="_blank">
             <i class="fa-solid fa-user" aria-hidden="true"></i>
             <span>Halaman User</span>
@@ -654,21 +665,23 @@
             </div>
 
             <div class="form-group">
-              <label for="fWarna">Warna Tanda Kegiatan</label>
+              <label>Warna Tanda Kegiatan</label>
               <div style="display: flex; align-items: center; gap: 10px">
-                <input
-                  type="color"
-                  id="fWarna"
-                  value="#111827"
+                <!-- Warna otomatis dari bidang kegiatan (lihat Keterangan Kegiatan) -->
+                <input type="hidden" id="fWarna" value="#5c6bc0" />
+                <span
+                  id="fWarnaPreview"
                   style="
-                    width: 54px;
-                    height: 38px;
-                    padding: 3px;
-                    cursor: pointer;
+                    width: 40px;
+                    height: 24px;
+                    border-radius: 6px;
+                    background: #5c6bc0;
+                    border: 1px solid rgba(0, 0, 0, 0.15);
+                    display: inline-block;
                   "
-                />
-                <span style="font-size: 12px; color: #777"
-                  >Pilih warna garis kegiatan di kalender</span
+                ></span>
+                <span id="fWarnaInfo" style="font-size: 12px; color: #777"
+                  >Otomatis dari bidang kegiatan: LAINNYA</span
                 >
               </div>
             </div>
@@ -1503,16 +1516,23 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="eventWarna">Warna Tanda Kegiatan</label>
+            <label>Warna Tanda Kegiatan</label>
             <div style="display: flex; align-items: center; gap: 10px">
-              <input
-                type="color"
-                id="eventWarna"
-                value="#111827"
-                style="width: 54px; height: 38px; padding: 3px; cursor: pointer"
-              />
-              <span style="font-size: 12px; color: #777"
-                >Warna tanda event di kalender</span
+              <!-- Warna otomatis dari bidang kegiatan (lihat Keterangan Kegiatan) -->
+              <input type="hidden" id="eventWarna" value="#5c6bc0" />
+              <span
+                id="eventWarnaPreview"
+                style="
+                  width: 40px;
+                  height: 24px;
+                  border-radius: 6px;
+                  background: #5c6bc0;
+                  border: 1px solid rgba(0, 0, 0, 0.15);
+                  display: inline-block;
+                "
+              ></span>
+              <span id="eventWarnaInfo" style="font-size: 12px; color: #777"
+                >Otomatis dari bidang kegiatan: LAINNYA</span
               >
             </div>
           </div>
@@ -1798,6 +1818,8 @@
           document.getElementById("formJenis").value = "kunjungan";
           if (typeof updateDropdowns === "function") updateDropdowns();
           if (typeof ubahFormJadwal === "function") ubahFormJadwal();
+          if (typeof window.perbaruiWarnaFormJadwal === "function")
+            window.perbaruiWarnaFormJadwal();
           modal.style.display = "flex";
           modal.classList.add("active");
         } catch (e) {
@@ -1828,6 +1850,8 @@
           document.getElementById("fieldBalai").style.display = "block";
         else if (jenis === "program")
           document.getElementById("fieldProgram").style.display = "block";
+        if (typeof window.perbaruiWarnaFormJadwal === "function")
+          window.perbaruiWarnaFormJadwal();
       };
 
       window.saveJadwal = function () {
@@ -2179,6 +2203,8 @@
 
           updateDropdowns();
           ubahFormJadwal();
+          if (typeof window.perbaruiWarnaFormJadwal === "function")
+            window.perbaruiWarnaFormJadwal();
           modal.style.display = "flex";
           modal.classList.add("active");
         } catch (e) {
@@ -2330,6 +2356,150 @@
         updateAllCharts();
         alert("🔄 Data capaian berhasil direfresh!");
       }
+
+      // ============================================
+      // WARNA OTOMATIS DARI BIDANG KEGIATAN
+      // (Sama dengan "Keterangan Kegiatan" di halaman user)
+      // ============================================
+      const KATEGORI_WARNA = [
+        {
+          key: "KKNT",
+          color: "#d32f2f",
+          match: [/kknt/i, /kuliah kerja nyata/i],
+        },
+        { key: "DOSPULKAM", color: "#f57c00", match: [/dospulkam/i] },
+        { key: "BIMA", color: "#ffffff", match: [/\bbima\b/i] },
+        {
+          key: "RAPAT",
+          color: "#000",
+          match: [/rapat/i, /koordinasi/i, /evaluasi/i],
+        },
+        {
+          key: "PELATIHAN",
+          color: "#7b1fa2",
+          match: [/pelatihan/i, /training/i, /workshop/i],
+        },
+        {
+          key: "UNDANGAN",
+          color: "#ec407a",
+          match: [/undangan/i, /sosialisasi/i, /bimtek/i],
+        },
+        {
+          key: "AGROEDUTOURISM",
+          color: "#1e88e5",
+          match: [/agroedutourism/i, /agroeduturisme/i, /agro\s?edutourism/i],
+        },
+        { key: "TATA KELOLA", color: "#fdd835", match: [/tata\s?kelola/i] },
+        { key: "JONGGOL", color: "#6d4c41", match: [/jonggol/i] },
+        { key: "TNC", color: "#2e7d32", match: [/(^|\W)tnc(\W|$)/i] },
+      ];
+      const KATEGORI_LAINNYA = { key: "LAINNYA", color: "#5c6bc0" };
+
+      window.deteksiKategoriWarna = function (...values) {
+        const text = values
+          .filter(Boolean)
+          .map((v) => String(v))
+          .join(" · ");
+        for (const kat of KATEGORI_WARNA) {
+          if (kat.match.some((re) => re.test(text))) return kat;
+        }
+        return KATEGORI_LAINNYA;
+      };
+
+      window.warnaOtomatisDariNama = function (...values) {
+        return window.deteksiKategoriWarna(...values).color;
+      };
+
+      // Perbarui swatch + info + hidden field warna sesuai nama kegiatan
+      function terapkanWarnaOtomatis(hiddenId, previewId, infoId, values) {
+        const kat = window.deteksiKategoriWarna(...values);
+        const hidden = document.getElementById(hiddenId);
+        const preview = document.getElementById(previewId);
+        const info = document.getElementById(infoId);
+        if (hidden) hidden.value = kat.color;
+        if (preview) preview.style.background = kat.color;
+        if (info)
+          info.textContent = "Otomatis dari bidang kegiatan: " + kat.key;
+      }
+
+      // Form jadwal
+      function perbaruiWarnaFormJadwal() {
+        const jenis = document.getElementById("formJenis").value;
+        let values = [];
+        if (jenis === "kunjungan") {
+          values = [
+            document.getElementById("fNamaTamu").value,
+            document.getElementById("fTujuan").value,
+            document.getElementById("fInstansi").value,
+            document.getElementById("fRuangan").value,
+          ];
+        } else if (jenis === "ruang") {
+          values = [
+            document.getElementById("fKegiatanRuang").value,
+            document.getElementById("fRuangan").value,
+          ];
+        } else if (jenis === "balai") {
+          values = [
+            document.getElementById("fKegiatanBalai").value,
+            document.getElementById("fJenisKegiatan").value,
+          ];
+        } else if (jenis === "program") {
+          values = [
+            document.getElementById("fNamaProgram").value,
+            document.getElementById("fKegiatanProgram").value,
+            document.getElementById("fTempat").value,
+          ];
+        }
+        terapkanWarnaOtomatis("fWarna", "fWarnaPreview", "fWarnaInfo", values);
+      }
+
+      // Form event kalender
+      function perbaruiWarnaFormEvent() {
+        terapkanWarnaOtomatis(
+          "eventWarna",
+          "eventWarnaPreview",
+          "eventWarnaInfo",
+          [
+            document.getElementById("eventNama").value,
+            document.getElementById("eventRuangan").value,
+            document.getElementById("eventTempat").value,
+          ],
+        );
+      }
+
+      window.perbaruiWarnaFormJadwal = perbaruiWarnaFormJadwal;
+      window.perbaruiWarnaFormEvent = perbaruiWarnaFormEvent;
+
+      // Pasang listener ke field yang memengaruhi warna
+      document.addEventListener("DOMContentLoaded", function () {
+        [
+          "fNamaTamu",
+          "fTujuan",
+          "fInstansi",
+          "fRuangan",
+          "fKegiatanRuang",
+          "fKegiatanBalai",
+          "fJenisKegiatan",
+          "fNamaProgram",
+          "fKegiatanProgram",
+          "fTempat",
+        ].forEach((idName) => {
+          const el = document.getElementById(idName);
+          if (el) {
+            el.addEventListener("input", perbaruiWarnaFormJadwal);
+            el.addEventListener("change", perbaruiWarnaFormJadwal);
+          }
+        });
+        ["eventNama", "eventRuangan", "eventTempat"].forEach((idName) => {
+          const el = document.getElementById(idName);
+          if (el) {
+            el.addEventListener("input", perbaruiWarnaFormEvent);
+            el.addEventListener("change", perbaruiWarnaFormEvent);
+          }
+        });
+        perbaruiWarnaFormJadwal();
+        perbaruiWarnaFormEvent();
+      });
 
       console.log("✅ Semua fungsi override aktif!");
     </script>

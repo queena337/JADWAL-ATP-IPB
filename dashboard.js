@@ -87,6 +87,97 @@ let nextProgramId = 2;
 let eventData = [];
 let nextEventId = 1;
 
+// ============================================
+// KATEGORI & WARNA OTOMATIS (SAMAGN USER)
+// ============================================
+// Warna mengikuti "Keterangan Kegiatan" di halaman user.
+// Kegiatan yang tidak cocok bidang mana pun => kategori LAINNYA.
+let masterKategori = [
+  {
+    key: "KKNT",
+    bidang: "Bidang Layanan",
+    color: "#d32f2f",
+    match: [/kknt/i, /kuliah kerja nyata/i],
+  },
+  {
+    key: "DOSPULKAM",
+    bidang: "Bidang Layanan",
+    color: "#f57c00",
+    match: [/dospulkam/i],
+  },
+  {
+    key: "BIMA",
+    bidang: "Bidang Layanan",
+    color: "#ffffff",
+    match: [/\bbima\b/i],
+  },
+  {
+    key: "RAPAT",
+    bidang: "Bidang Layanan",
+    color: "#000",
+    match: [/rapat/i, /koordinasi/i, /evaluasi/i],
+  },
+  {
+    key: "PELATIHAN",
+    bidang: "Bidang Layanan",
+    color: "#7b1fa2",
+    match: [/pelatihan/i, /training/i, /workshop/i],
+  },
+  {
+    key: "UNDANGAN",
+    bidang: "Bidang Layanan",
+    color: "#ec407a",
+    match: [/undangan/i, /sosialisasi/i, /bimtek/i],
+  },
+  {
+    key: "AGROEDUTOURISM",
+    bidang: "Bidang Kawasan",
+    color: "#1e88e5",
+    match: [/agroedutourism/i, /agroeduturisme/i, /agro\s?edutourism/i],
+  },
+  {
+    key: "TATA KELOLA",
+    bidang: "Bidang Kawasan",
+    color: "#fdd835",
+    match: [/tata\s?kelola/i],
+  },
+  {
+    key: "JONGGOL",
+    bidang: "Bidang Kawasan",
+    color: "#6d4c41",
+    match: [/jonggol/i],
+  },
+  {
+    key: "TNC",
+    bidang: "Waka 3 / TNC",
+    color: "#2e7d32",
+    match: [/(^|\W)tnc(\W|$)/i],
+  },
+];
+
+const KATEGORI_LAINNYA = {
+  key: "LAINNYA",
+  bidang: "Lainnya",
+  color: "#5c6bc0",
+};
+
+// Deteksi kategori dari teks (nama kegiatan, jenis, ruangan, PIC, dll)
+function deteksiKategori(...values) {
+  const text = values
+    .filter(Boolean)
+    .map((v) => String(v))
+    .join(" · ");
+  for (const kat of masterKategori) {
+    if (kat.match.some((re) => re.test(text))) return kat;
+  }
+  return KATEGORI_LAINNYA;
+}
+
+// Warna otomatis: kegiatan yang tidak masuk bidang mana pun => warna LAINNYA
+function warnaOtomatisDariNama(...values) {
+  return deteksiKategori(...values).color;
+}
+
 function closeAppDialog() {
   const dialog = document.getElementById("appDialog");
   if (dialog) dialog.classList.remove("active");
@@ -628,7 +719,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan || "-",
         tempat: item.instansi || "-",
         pic: item.pic,
-        warna: item.warna || "#111827",
+        warna: warnaOtomatisDariNama(item.nama, item.tujuan, item.instansi),
         dariJadwal: true,
         sumber: "Kunjungan",
         sumberId: item.id,
@@ -656,7 +747,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
-        warna: item.warna || "#111827",
+        warna: warnaOtomatisDariNama(item.kegiatan, item.ruangan),
         dariJadwal: true,
         sumber: "Pemakaian Ruang",
         sumberId: item.id,
@@ -684,7 +775,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
-        warna: item.warna || "#111827",
+        warna: warnaOtomatisDariNama(item.kegiatan, item.jenis),
         dariJadwal: true,
         sumber: "Balai BRI",
         sumberId: item.id,
@@ -712,7 +803,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.lokasi || "-",
         tempat: item.lokasi || "-",
         pic: item.pic,
-        warna: item.warna || "#111827",
+        warna: warnaOtomatisDariNama(item.program, item.kegiatan, item.lokasi),
         dariJadwal: true,
         sumber: "Per Program",
         sumberId: item.id,
@@ -728,52 +819,82 @@ function sinkronkanJadwalKeKalender() {
 // ============================================
 // SIDEBAR TOGGLE
 // ============================================
-function toggleSidebar() {
+function setSidebar(open) {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
   const hamburger = document.getElementById("hamburgerBtn");
-  sidebar.classList.toggle("open");
-  overlay.classList.toggle("active");
-  hamburger.classList.toggle("active");
+
+  sidebar.classList.toggle("open", open);
+  overlay.classList.toggle("active", open);
+  hamburger.classList.toggle("active", open);
+  hamburger.setAttribute("aria-expanded", String(open));
+
   if (window.innerWidth <= 768) {
-    sidebar.style.transform = sidebar.classList.contains("open")
-      ? "translateX(0)"
-      : "translateX(-100%)";
+    sidebar.style.transform = open ? "translateX(0)" : "translateX(-105%)";
+  } else {
+    sidebar.style.transform = "";
   }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const open = !sidebar.classList.contains("open");
+  setSidebar(open);
 }
 
 function closeSidebar() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
   const hamburger = document.getElementById("hamburgerBtn");
+
   sidebar.classList.remove("open");
   overlay.classList.remove("active");
   hamburger.classList.remove("active");
+  hamburger.setAttribute("aria-expanded", "false");
+
   if (window.innerWidth <= 768) {
-    sidebar.style.transform = "translateX(-100%)";
+    sidebar.style.transform = "translateX(-105%)";
   }
 }
 
 document.addEventListener("click", function (e) {
   const sidebar = document.getElementById("sidebar");
   const hamburger = document.getElementById("hamburgerBtn");
-  if (window.innerWidth <= 768 && sidebar.classList.contains("open")) {
-    if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
-      closeSidebar();
-    }
+  const isInsideSidebar = sidebar.contains(e.target);
+  const isHamburger = hamburger.contains(e.target) || hamburger === e.target;
+
+  if (
+    window.innerWidth <= 768 &&
+    sidebar.classList.contains("open") &&
+    !isInsideSidebar &&
+    !isHamburger
+  ) {
+    closeSidebar();
+  }
+
+  if (
+    e.target.closest &&
+    e.target.closest(".menu a") &&
+    window.innerWidth <= 768
+  ) {
+    setTimeout(closeSidebar, 50);
   }
 });
 
 window.addEventListener("resize", function () {
   const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const hamburger = document.getElementById("hamburgerBtn");
+
   if (window.innerWidth > 768) {
     sidebar.style.transform = "";
     sidebar.classList.remove("open");
-    document.getElementById("overlay").classList.remove("active");
-    document.getElementById("hamburgerBtn").classList.remove("active");
+    overlay.classList.remove("active");
+    hamburger.classList.remove("active");
+    hamburger.setAttribute("aria-expanded", "false");
   } else {
     if (!sidebar.classList.contains("open")) {
-      sidebar.style.transform = "translateX(-100%)";
+      sidebar.style.transform = "translateX(-105%)";
     }
   }
 });
@@ -1854,12 +1975,14 @@ function tambahEvent() {
   document.getElementById("eventNama").value = "";
   document.getElementById("eventWaktuMulai").value = "";
   document.getElementById("eventWaktuSelesai").value = "";
-  document.getElementById("eventWarna").value = "#111827";
+  document.getElementById("eventWarna").value = "#5c6bc0";
   document.getElementById("eventRuangan").value = "";
   document.getElementById("eventTempat").value = "";
   document.getElementById("eventPic").value = "";
   document.getElementById("btnDeleteEvent").style.display = "none";
   updateDropdowns();
+  if (typeof window.perbaruiWarnaFormEvent === "function")
+    window.perbaruiWarnaFormEvent();
   document.getElementById("eventModal").classList.add("active");
 }
 
@@ -1890,9 +2013,11 @@ function editEvent(id) {
   document.getElementById("eventRuangan").value = event.ruangan;
   document.getElementById("eventTempat").value = event.tempat;
   document.getElementById("eventPic").value = event.pic;
-  document.getElementById("eventWarna").value = event.warna || "#111827";
+  document.getElementById("eventWarna").value = event.warna || "#5c6bc0";
   document.getElementById("btnDeleteEvent").style.display = "inline-block";
   updateDropdowns();
+  if (typeof window.perbaruiWarnaFormEvent === "function")
+    window.perbaruiWarnaFormEvent();
   document.getElementById("eventModal").classList.add("active");
 }
 
@@ -1928,7 +2053,12 @@ function saveEvent() {
     ruangan: document.getElementById("eventRuangan").value,
     tempat: document.getElementById("eventTempat").value,
     pic: document.getElementById("eventPic").value,
-    warna: document.getElementById("eventWarna").value || "#111827",
+    // Warna otomatis dari nama kegiatan (sesuai Keterangan Kegiatan user)
+    warna: warnaOtomatisDariNama(
+      nama,
+      document.getElementById("eventRuangan").value,
+      document.getElementById("eventTempat").value,
+    ),
     dariJadwal: false,
   };
 
@@ -3330,15 +3460,15 @@ function exportWordFile() {
 // ============================================
 function setCurrentDate() {
   const now = new Date();
-  document.getElementById("currentDate").textContent = now.toLocaleDateString(
-    "id-ID",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    },
-  );
+  const currentDate = document.getElementById("currentDate");
+  if (!currentDate) return;
+
+  currentDate.textContent = now.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 // ============================================
