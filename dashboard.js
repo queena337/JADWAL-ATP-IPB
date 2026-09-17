@@ -1668,12 +1668,18 @@ function renderDashboardEvents() {
   }
   let html = "";
   sortedEvents.forEach((e) => {
+    const aksi = e.dariJadwal
+      ? `<button class="btn-edit" onclick="editEventSource(${e.sumberId}, '${e.sumber}')" title="Edit kegiatan">✏️</button>
+         <button style="background:#f44336;color:#fff;border:none;padding:2px 10px;border-radius:6px;cursor:pointer;" onclick="hapusEventSource(${e.sumberId}, '${e.sumber}')" title="Hapus kegiatan">🗑️</button>`
+      : `<button class="btn-edit" onclick="editEvent(${e.id})" title="Edit kegiatan">✏️</button>
+         <button style="background:#f44336;color:#fff;border:none;padding:2px 10px;border-radius:6px;cursor:pointer;" onclick="hapusEventById(${e.id})" title="Hapus kegiatan">🗑️</button>`;
     html += `
-            <div class="dashboard-event-item">
+            <div class="dashboard-event-item" style="cursor:pointer" onclick="tampilkanDetailEvent(${e.id})" title="Klik untuk detail">
                 <span class="event-date">${e.tanggal}</span>
                 <span class="event-name">${e.nama}</span>
                 <span class="event-time">🕐 ${e.waktu || "--:--"}</span>
                 <span class="event-pic">👤 ${e.pic}</span>
+                <span style="display:flex;gap:6px" onclick="event.stopPropagation()">${aksi}</span>
             </div>
         `;
   });
@@ -1917,7 +1923,8 @@ function showEventDetail(tanggal) {
                 ${
                   e.dariJadwal
                     ? `<button class="btn-edit" onclick="tampilkanDetailEvent(${e.id})">👁 Lihat</button>
-                    <button class="btn-edit" onclick="editEventSource(${e.sumberId}, '${e.sumber}')">✏️ Edit</button>`
+                    <button class="btn-edit" onclick="editEventSource(${e.sumberId}, '${e.sumber}')">✏️ Edit</button>
+                    <button style="background:#f44336;color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;" onclick="hapusEventSource(${e.sumberId}, '${e.sumber}')">🗑️</button>`
                     : `<button class="btn-edit" onclick="tampilkanDetailEvent(${e.id})">👁 Lihat</button>
                     <button class="btn-edit" onclick="editEvent(${e.id})">✏️ Edit</button>
                     <button style="background:#f44336;color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;" onclick="hapusEventById(${e.id})">🗑️</button>`
@@ -1946,10 +1953,14 @@ function lihatDetailEvent(id) {
   }, 100);
 }
 
+// Simpan id event yang sedang dilihat (untuk aksi Edit/Hapus di modal detail)
+let currentDetailEventId = null;
+
 function tampilkanDetailEvent(id) {
   const event = eventData.find((item) => item.id === id);
   if (!event) return;
 
+  currentDetailEventId = id;
   const namaEvent = (event.nama || "-").replace(/^(📋|🏢|🏛️|📊)\s*/u, "");
   document.getElementById("detailEventNama").textContent = namaEvent;
   document.getElementById("detailEventTanggal").textContent =
@@ -1963,8 +1974,62 @@ function tampilkanDetailEvent(id) {
   document.getElementById("eventDetailModal").classList.add("active");
 }
 
+// ---- Aksi Edit/Hapus dari modal Detail Event ----
+function editEventDariDetail() {
+  if (currentDetailEventId == null) return;
+  const event = eventData.find((item) => item.id === currentDetailEventId);
+  if (!event) return;
+  closeEventDetailModal();
+  // Event turunan jadwal -> edit jadwal sumbernya; event mandiri -> edit event
+  if (event.dariJadwal) editEventSource(event.sumberId, event.sumber);
+  else editEvent(event.id);
+}
+
+function hapusEventDariDetail() {
+  if (currentDetailEventId == null) return;
+  const event = eventData.find((item) => item.id === currentDetailEventId);
+  if (!event) return;
+  closeEventDetailModal();
+  if (event.dariJadwal) {
+    // Hapus jadwal sumber (event turunan akan ikut hilang saat sinkronisasi)
+    const jenisMap = {
+      Kunjungan: "kunjungan",
+      "Pemakaian Ruang": "ruang",
+      "Balai BRI": "balai",
+      "Per Program": "program",
+    };
+    const jenis = jenisMap[event.sumber];
+    if (jenis && typeof hapusJadwal === "function")
+      hapusJadwal(jenis, event.sumberId);
+    else hapusEventById(event.id);
+  } else {
+    hapusEventById(event.id);
+  }
+}
+
 function closeEventDetailModal() {
   document.getElementById("eventDetailModal").classList.remove("active");
+}
+
+// Set nilai <select> warna kegiatan. Jika warna tersimpan tidak ada di daftar
+// opsi (mis. data lama yang warnanya otomatis), tambahkan opsi sementara agar
+// tidak tampil kosong.
+function setSelectWarna(selectId, warna) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const color = warna || "#5c6bc0";
+  sel.querySelectorAll('option[data-temp-warna="1"]').forEach((o) => o.remove());
+  sel.value = color;
+  if (sel.value !== color) {
+    const opt = document.createElement("option");
+    opt.value = color;
+    opt.textContent = "Warna tersimpan (" + color + ")";
+    opt.dataset.tempWarna = "1";
+    sel.appendChild(opt);
+    sel.value = color;
+  }
+  if (typeof window.perbaruiPreviewWarna === "function")
+    window.perbaruiPreviewWarna();
 }
 
 function tambahEvent() {
@@ -1976,6 +2041,8 @@ function tambahEvent() {
   document.getElementById("eventWaktuMulai").value = "";
   document.getElementById("eventWaktuSelesai").value = "";
   document.getElementById("eventWarna").value = "#5c6bc0";
+  if (typeof window.perbaruiPreviewWarna === "function")
+    window.perbaruiPreviewWarna();
   document.getElementById("eventRuangan").value = "";
   document.getElementById("eventTempat").value = "";
   document.getElementById("eventPic").value = "";
@@ -2013,7 +2080,7 @@ function editEvent(id) {
   document.getElementById("eventRuangan").value = event.ruangan;
   document.getElementById("eventTempat").value = event.tempat;
   document.getElementById("eventPic").value = event.pic;
-  document.getElementById("eventWarna").value = event.warna || "#5c6bc0";
+  setSelectWarna("eventWarna", event.warna);
   document.getElementById("btnDeleteEvent").style.display = "inline-block";
   updateDropdowns();
   if (typeof window.perbaruiWarnaFormEvent === "function")
@@ -2053,12 +2120,8 @@ function saveEvent() {
     ruangan: document.getElementById("eventRuangan").value,
     tempat: document.getElementById("eventTempat").value,
     pic: document.getElementById("eventPic").value,
-    // Warna otomatis dari nama kegiatan (sesuai Keterangan Kegiatan user)
-    warna: warnaOtomatisDariNama(
-      nama,
-      document.getElementById("eventRuangan").value,
-      document.getElementById("eventTempat").value,
-    ),
+    // Warna DIPILIH MANUAL oleh pengguna (tidak lagi otomatis dari nama).
+    warna: document.getElementById("eventWarna").value || "#5c6bc0",
     dariJadwal: false,
   };
 
@@ -2087,6 +2150,18 @@ function editEventSource(id, sumber) {
   if (!jenis || typeof window.editJadwal !== "function") return;
   switchMenu("jadwal");
   setTimeout(() => window.editJadwal(jenis, id), 100);
+}
+
+// Hapus kegiatan turunan jadwal dari daftar event
+function hapusEventSource(id, sumber) {
+  const jenisMap = {
+    Kunjungan: "kunjungan",
+    "Pemakaian Ruang": "ruang",
+    "Balai BRI": "balai",
+    "Per Program": "program",
+  };
+  const jenis = jenisMap[sumber];
+  if (jenis && typeof hapusJadwal === "function") hapusJadwal(jenis, id);
 }
 
 function hapusEvent() {

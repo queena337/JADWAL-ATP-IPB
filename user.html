@@ -521,7 +521,9 @@
         overflow: hidden;
         border: 1px solid #edf0f6;
         background: #fff;
-        transition: border-color 0.15s ease, transform 0.15s ease;
+        transition:
+          border-color 0.15s ease,
+          transform 0.15s ease;
       }
       .calendar-grid .day.empty {
         color: #ccc;
@@ -577,7 +579,9 @@
         white-space: nowrap;
         cursor: pointer;
         border-radius: 0;
-        transition: filter 0.15s ease, transform 0.15s ease;
+        transition:
+          filter 0.15s ease,
+          transform 0.15s ease;
       }
       .calendar-grid .day .event-strip:hover {
         filter: brightness(1.12);
@@ -633,7 +637,9 @@
         border-radius: 10px;
         padding: 10px 14px;
         border-left: 5px solid #26358f;
-        transition: transform 0.15s ease, box-shadow 0.15s ease,
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease,
           background 0.15s ease;
       }
       .event-item:hover {
@@ -981,7 +987,9 @@
         border-left: 6px solid #26358f;
         border-radius: 14px;
         padding: 16px 18px;
-        transition: box-shadow 0.18s, transform 0.18s;
+        transition:
+          box-shadow 0.18s,
+          transform 0.18s;
       }
       .modal-detail-event .detail-card:hover {
         box-shadow: 0 6px 18px rgba(38, 53, 143, 0.12);
@@ -1322,17 +1330,6 @@
               ><span class="dot dot-light" style="background: #ffffff"></span>
               BIMA</span
             >
-            <span class="legend-item"
-              ><span class="dot" style="background: #000"></span> RAPAT</span
-            >
-            <span class="legend-item"
-              ><span class="dot" style="background: #7b1fa2"></span>
-              PELATIHAN</span
-            >
-            <span class="legend-item"
-              ><span class="dot" style="background: #ec407a"></span>
-              UNDANGAN</span
-            >
           </div>
         </div>
         <div class="legend-group">
@@ -1364,7 +1361,24 @@
           <h4>Lainnya</h4>
           <div class="legend-items">
             <span class="legend-item"
-              ><span class="dot" style="background: #5c6bc0"></span> LAINNYA</span
+              ><span class="dot" style="background: #5c6bc0"></span>
+              LAINNYA</span
+            >
+          </div>
+        </div>
+        <div class="legend-group">
+          <h4>Kegiatan Umum</h4>
+          <div class="legend-items">
+            <span class="legend-item"
+              ><span class="dot" style="background: #000"></span> RAPAT</span
+            >
+            <span class="legend-item"
+              ><span class="dot" style="background: #7b1fa2"></span>
+              PELATIHAN</span
+            >
+            <span class="legend-item"
+              ><span class="dot" style="background: #ec407a"></span>
+              UNDANGAN</span
             >
           </div>
         </div>
@@ -1939,10 +1953,7 @@
                 : lastDayOfMonth;
 
             const jenis = jenisDariEvent(event);
-            const kat = detectKategori(
-              { ...event, kategori: jenis },
-              jenis,
-            );
+            const kat = detectKategori({ ...event, kategori: jenis }, jenis);
 
             for (let d = startDay; d <= endDay; d++) {
               result.push({

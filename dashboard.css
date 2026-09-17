@@ -843,6 +843,62 @@ tbody tr:hover {
   vertical-align: middle;
 }
 
+/* ===== KETERANGAN KEGIATAN (LEGEND) ===== */
+.legend-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #eef1f7;
+}
+.legend-section .section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 14px;
+}
+.legend-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+.legend-group h4 {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #26358f;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #eef1f7;
+}
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: #f7f8fc;
+  border: 1px solid #e6e9f2;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2b3245;
+}
+.legend-item .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 5px;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+}
+.legend-item .dot.dot-light {
+  border-color: #b9bfce;
+}
+
 /* ===== EVENT LIST CARD ===== */
 .event-list-card {
   max-height: 400px;

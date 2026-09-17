@@ -269,20 +269,83 @@
               </div>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="calendar-legend">
-              <span
-                ><span class="dot" style="background: #1a237e"></span> Ada
-                Event</span
-              >
-              <span
-                ><span class="dot" style="background: #ff9800"></span> Hari
-                Ini</span
-              >
-              <span
-                ><span class="dot" style="background: #e0e0e0"></span>
-                Kosong</span
-              >
-            </div>
+            <section class="legend-section">
+              <div class="section-title">🎨 Keterangan Kegiatan</div>
+              <div class="legend-groups">
+                <div class="legend-group">
+                  <h4>Bidang Layanan</h4>
+                  <div class="legend-items">
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #d32f2f"></span>
+                      KKNT</span
+                    >
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #f57c00"></span>
+                      DOSPULKAM</span
+                    >
+                    <span class="legend-item"
+                      ><span
+                        class="dot dot-light"
+                        style="background: #ffffff"
+                      ></span>
+                      BIMA</span
+                    >
+                  </div>
+                </div>
+                <div class="legend-group">
+                  <h4>Bidang Kawasan</h4>
+                  <div class="legend-items">
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #1e88e5"></span>
+                      AGROEDUTOURISM</span
+                    >
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #fdd835"></span>
+                      TATA KELOLA</span
+                    >
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #6d4c41"></span>
+                      JONGGOL</span
+                    >
+                  </div>
+                </div>
+                <div class="legend-group">
+                  <h4>Waka 3 / TNC</h4>
+                  <div class="legend-items">
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #2e7d32"></span>
+                      TNC</span
+                    >
+                  </div>
+                </div>
+                <div class="legend-group">
+                  <h4>Lainnya</h4>
+                  <div class="legend-items">
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #5c6bc0"></span>
+                      LAINNYA</span
+                    >
+                  </div>
+                </div>
+                <div class="legend-group">
+                  <h4>Kegiatan Umum</h4>
+                  <div class="legend-items">
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #000"></span>
+                      RAPAT</span
+                    >
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #7b1fa2"></span>
+                      PELATIHAN</span
+                    >
+                    <span class="legend-item"
+                      ><span class="dot" style="background: #ec407a"></span>
+                      UNDANGAN</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
 
           <div class="card event-list-card">
@@ -667,8 +730,6 @@
             <div class="form-group">
               <label>Warna Tanda Kegiatan</label>
               <div style="display: flex; align-items: center; gap: 10px">
-                <!-- Warna otomatis dari bidang kegiatan (lihat Keterangan Kegiatan) -->
-                <input type="hidden" id="fWarna" value="#5c6bc0" />
                 <span
                   id="fWarnaPreview"
                   style="
@@ -678,11 +739,36 @@
                     background: #5c6bc0;
                     border: 1px solid rgba(0, 0, 0, 0.15);
                     display: inline-block;
+                    flex-shrink: 0;
                   "
                 ></span>
-                <span id="fWarnaInfo" style="font-size: 12px; color: #777"
-                  >Otomatis dari bidang kegiatan: LAINNYA</span
+                <select
+                  id="fWarna"
+                  onchange="
+                    if (typeof window.perbaruiPreviewWarna === 'function')
+                      window.perbaruiPreviewWarna();
+                  "
+                  style="
+                    padding: 8px 12px;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    flex: 1;
+                    min-width: 0;
+                  "
                 >
+                  <option value="#d32f2f">KKNT</option>
+                  <option value="#f57c00">DOSPULKAM</option>
+                  <option value="#ffffff">BIMA</option>
+                  <option value="#000">RAPAT</option>
+                  <option value="#7b1fa2">PELATIHAN</option>
+                  <option value="#ec407a">UNDANGAN</option>
+                  <option value="#1e88e5">AGROEDUTOURISM</option>
+                  <option value="#fdd835">TATA KELOLA</option>
+                  <option value="#6d4c41">JONGGOL</option>
+                  <option value="#2e7d32">TNC</option>
+                  <option value="#5c6bc0" selected>LAINNYA</option>
+                </select>
               </div>
             </div>
 
@@ -896,20 +982,83 @@
             <button id="nextMonthFull">▶</button>
           </div>
           <div class="calendar-grid-full" id="calendarGridFull"></div>
-          <div class="calendar-legend">
-            <span
-              ><span class="dot" style="background: #1a237e"></span> Ada
-              Event</span
-            >
-            <span
-              ><span class="dot" style="background: #ff9800"></span> Hari
-              Ini</span
-            >
-            <span
-              ><span class="dot" style="background: #e0e0e0"></span>
-              Kosong</span
-            >
-          </div>
+          <section class="legend-section">
+            <div class="section-title">🎨 Keterangan Kegiatan</div>
+            <div class="legend-groups">
+              <div class="legend-group">
+                <h4>Bidang Layanan</h4>
+                <div class="legend-items">
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #d32f2f"></span>
+                    KKNT</span
+                  >
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #f57c00"></span>
+                    DOSPULKAM</span
+                  >
+                  <span class="legend-item"
+                    ><span
+                      class="dot dot-light"
+                      style="background: #ffffff"
+                    ></span>
+                    BIMA</span
+                  >
+                </div>
+              </div>
+              <div class="legend-group">
+                <h4>Bidang Kawasan</h4>
+                <div class="legend-items">
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #1e88e5"></span>
+                    AGROEDUTOURISM</span
+                  >
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #fdd835"></span> TATA
+                    KELOLA</span
+                  >
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #6d4c41"></span>
+                    JONGGOL</span
+                  >
+                </div>
+              </div>
+              <div class="legend-group">
+                <h4>Waka 3 / TNC</h4>
+                <div class="legend-items">
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #2e7d32"></span>
+                    TNC</span
+                  >
+                </div>
+              </div>
+              <div class="legend-group">
+                <h4>Lainnya</h4>
+                <div class="legend-items">
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #5c6bc0"></span>
+                    LAINNYA</span
+                  >
+                </div>
+              </div>
+              <div class="legend-group">
+                <h4>Kegiatan Umum</h4>
+                <div class="legend-items">
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #000"></span>
+                    RAPAT</span
+                  >
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #7b1fa2"></span>
+                    PELATIHAN</span
+                  >
+                  <span class="legend-item"
+                    ><span class="dot" style="background: #ec407a"></span>
+                    UNDANGAN</span
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
           <div
             style="
               margin-top: 20px;
@@ -1518,8 +1667,6 @@
           <div class="form-group">
             <label>Warna Tanda Kegiatan</label>
             <div style="display: flex; align-items: center; gap: 10px">
-              <!-- Warna otomatis dari bidang kegiatan (lihat Keterangan Kegiatan) -->
-              <input type="hidden" id="eventWarna" value="#5c6bc0" />
               <span
                 id="eventWarnaPreview"
                 style="
@@ -1529,11 +1676,36 @@
                   background: #5c6bc0;
                   border: 1px solid rgba(0, 0, 0, 0.15);
                   display: inline-block;
+                  flex-shrink: 0;
                 "
               ></span>
-              <span id="eventWarnaInfo" style="font-size: 12px; color: #777"
-                >Otomatis dari bidang kegiatan: LAINNYA</span
+              <select
+                id="eventWarna"
+                onchange="
+                  if (typeof window.perbaruiPreviewWarna === 'function')
+                    window.perbaruiPreviewWarna();
+                "
+                style="
+                  padding: 8px 12px;
+                  border: 2px solid #e0e0e0;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  flex: 1;
+                  min-width: 0;
+                "
               >
+                <option value="#d32f2f">KKNT</option>
+                <option value="#f57c00">DOSPULKAM</option>
+                <option value="#ffffff">BIMA</option>
+                <option value="#000">RAPAT</option>
+                <option value="#7b1fa2">PELATIHAN</option>
+                <option value="#ec407a">UNDANGAN</option>
+                <option value="#1e88e5">AGROEDUTOURISM</option>
+                <option value="#fdd835">TATA KELOLA</option>
+                <option value="#6d4c41">JONGGOL</option>
+                <option value="#2e7d32">TNC</option>
+                <option value="#5c6bc0" selected>LAINNYA</option>
+              </select>
             </div>
           </div>
           <div class="form-group">
@@ -1625,6 +1797,33 @@
               <span class="event-detail-label">PIC</span>
               <strong id="detailEventPic"></strong>
             </div>
+          </div>
+          <div
+            id="detailEventActions"
+            style="
+              display: flex;
+              gap: 10px;
+              margin-top: 20px;
+              padding-top: 16px;
+              border-top: 1px solid #eef1f7;
+            "
+          >
+            <button
+              type="button"
+              class="btn-add"
+              style="flex: 1"
+              onclick="editEventDariDetail()"
+            >
+              ✏️ Edit Kegiatan
+            </button>
+            <button
+              type="button"
+              class="btn-delete"
+              style="flex: 1"
+              onclick="hapusEventDariDetail()"
+            >
+              🗑️ Hapus Kegiatan
+            </button>
           </div>
         </div>
       </div>
@@ -1809,7 +2008,7 @@
           const today = new Date().toISOString().split("T")[0];
           document.getElementById("fTanggalMulai").value = today;
           document.getElementById("fTanggalSelesai").value = today;
-          document.getElementById("fWarna").value = "#111827";
+          document.getElementById("fWarna").value = "#5c6bc0";
           document.getElementById("fWaktuMulai").value = "";
           document.getElementById("fWaktuSelesai").value = "";
           document.getElementById("fRuangan").value = "";
@@ -1874,7 +2073,7 @@
           const ruangan = document.getElementById("fRuangan").value;
           const tempat = document.getElementById("fTempat").value;
           const pic = document.getElementById("fPic").value;
-          const warna = document.getElementById("fWarna").value || "#111827";
+          const warna = document.getElementById("fWarna").value || "#5c6bc0";
 
           if (tanggalMulai && tanggalSelesai && tanggalSelesai < tanggalMulai) {
             alert(
@@ -2194,7 +2393,10 @@
             data.tanggalMulai || data.tanggal || "";
           document.getElementById("fTanggalSelesai").value =
             data.tanggalSelesai || data.tanggal || "";
-          document.getElementById("fWarna").value = data.warna || "#111827";
+          if (typeof setSelectWarna === "function")
+            setSelectWarna("fWarna", data.warna);
+          else
+            document.getElementById("fWarna").value = data.warna || "#5c6bc0";
           document.getElementById("fRuangan").value =
             data.ruangan || data.lokasi || "";
           document.getElementById("fTempat").value =
@@ -2358,148 +2560,89 @@
       }
 
       // ============================================
-      // WARNA OTOMATIS DARI BIDANG KEGIATAN
-      // (Sama dengan "Keterangan Kegiatan" di halaman user)
+      // WARNA KEGIATAN: DIPILIH MANUAL OLEH PENGGUNA
+      // Pilihan warna mengikuti "Keterangan Kegiatan" di halaman user.
+      // (deteksiKategoriWarna/warnaOtomatisDariNama tetap dipertahankan
+      // untuk kegiatan yang berasal dari jadwal.)
+      // Dibungkus IIFE agar TIDAK ada deklarasi const/let top-level
+      // yang bentrok dengan dashboard.js (memicu SyntaxError global).
       // ============================================
-      const KATEGORI_WARNA = [
-        {
-          key: "KKNT",
-          color: "#d32f2f",
-          match: [/kknt/i, /kuliah kerja nyata/i],
-        },
-        { key: "DOSPULKAM", color: "#f57c00", match: [/dospulkam/i] },
-        { key: "BIMA", color: "#ffffff", match: [/\bbima\b/i] },
-        {
-          key: "RAPAT",
-          color: "#000",
-          match: [/rapat/i, /koordinasi/i, /evaluasi/i],
-        },
-        {
-          key: "PELATIHAN",
-          color: "#7b1fa2",
-          match: [/pelatihan/i, /training/i, /workshop/i],
-        },
-        {
-          key: "UNDANGAN",
-          color: "#ec407a",
-          match: [/undangan/i, /sosialisasi/i, /bimtek/i],
-        },
-        {
-          key: "AGROEDUTOURISM",
-          color: "#1e88e5",
-          match: [/agroedutourism/i, /agroeduturisme/i, /agro\s?edutourism/i],
-        },
-        { key: "TATA KELOLA", color: "#fdd835", match: [/tata\s?kelola/i] },
-        { key: "JONGGOL", color: "#6d4c41", match: [/jonggol/i] },
-        { key: "TNC", color: "#2e7d32", match: [/(^|\W)tnc(\W|$)/i] },
-      ];
-      const KATEGORI_LAINNYA = { key: "LAINNYA", color: "#5c6bc0" };
+      (function () {
+        const KATEGORI_WARNA = [
+          {
+            key: "KKNT",
+            color: "#d32f2f",
+            match: [/kknt/i, /kuliah kerja nyata/i],
+          },
+          { key: "DOSPULKAM", color: "#f57c00", match: [/dospulkam/i] },
+          { key: "BIMA", color: "#ffffff", match: [/\bbima\b/i] },
+          {
+            key: "RAPAT",
+            color: "#000",
+            match: [/rapat/i, /koordinasi/i, /evaluasi/i],
+          },
+          {
+            key: "PELATIHAN",
+            color: "#7b1fa2",
+            match: [/pelatihan/i, /training/i, /workshop/i],
+          },
+          {
+            key: "UNDANGAN",
+            color: "#ec407a",
+            match: [/undangan/i, /sosialisasi/i, /bimtek/i],
+          },
+          {
+            key: "AGROEDUTOURISM",
+            color: "#1e88e5",
+            match: [/agroedutourism/i, /agroeduturisme/i, /agro\s?edutourism/i],
+          },
+          { key: "TATA KELOLA", color: "#fdd835", match: [/tata\s?kelola/i] },
+          { key: "JONGGOL", color: "#6d4c41", match: [/jonggol/i] },
+          { key: "TNC", color: "#2e7d32", match: [/(^|\W)tnc(\W|$)/i] },
+        ];
+        const KATEGORI_LAINNYA = { key: "LAINNYA", color: "#5c6bc0" };
 
-      window.deteksiKategoriWarna = function (...values) {
-        const text = values
-          .filter(Boolean)
-          .map((v) => String(v))
-          .join(" · ");
-        for (const kat of KATEGORI_WARNA) {
-          if (kat.match.some((re) => re.test(text))) return kat;
-        }
-        return KATEGORI_LAINNYA;
-      };
+        window.deteksiKategoriWarna = function (...values) {
+          const text = values
+            .filter(Boolean)
+            .map((v) => String(v))
+            .join(" · ");
+          for (const kat of KATEGORI_WARNA) {
+            if (kat.match.some((re) => re.test(text))) return kat;
+          }
+          return KATEGORI_LAINNYA;
+        };
 
-      window.warnaOtomatisDariNama = function (...values) {
-        return window.deteksiKategoriWarna(...values).color;
-      };
+        window.warnaOtomatisDariNama = function (...values) {
+          return window.deteksiKategoriWarna(...values).color;
+        };
 
-      // Perbarui swatch + info + hidden field warna sesuai nama kegiatan
-      function terapkanWarnaOtomatis(hiddenId, previewId, infoId, values) {
-        const kat = window.deteksiKategoriWarna(...values);
-        const hidden = document.getElementById(hiddenId);
-        const preview = document.getElementById(previewId);
-        const info = document.getElementById(infoId);
-        if (hidden) hidden.value = kat.color;
-        if (preview) preview.style.background = kat.color;
-        if (info)
-          info.textContent = "Otomatis dari bidang kegiatan: " + kat.key;
-      }
-
-      // Form jadwal
-      function perbaruiWarnaFormJadwal() {
-        const jenis = document.getElementById("formJenis").value;
-        let values = [];
-        if (jenis === "kunjungan") {
-          values = [
-            document.getElementById("fNamaTamu").value,
-            document.getElementById("fTujuan").value,
-            document.getElementById("fInstansi").value,
-            document.getElementById("fRuangan").value,
-          ];
-        } else if (jenis === "ruang") {
-          values = [
-            document.getElementById("fKegiatanRuang").value,
-            document.getElementById("fRuangan").value,
-          ];
-        } else if (jenis === "balai") {
-          values = [
-            document.getElementById("fKegiatanBalai").value,
-            document.getElementById("fJenisKegiatan").value,
-          ];
-        } else if (jenis === "program") {
-          values = [
-            document.getElementById("fNamaProgram").value,
-            document.getElementById("fKegiatanProgram").value,
-            document.getElementById("fTempat").value,
-          ];
-        }
-        terapkanWarnaOtomatis("fWarna", "fWarnaPreview", "fWarnaInfo", values);
-      }
-
-      // Form event kalender
-      function perbaruiWarnaFormEvent() {
-        terapkanWarnaOtomatis(
-          "eventWarna",
-          "eventWarnaPreview",
-          "eventWarnaInfo",
+        // Warna kini DIPILIH MANUAL lewat dropdown (lihat "Warna Tanda
+        // Kegiatan"). Preview diperbarui mengikuti pilihan pengguna.
+        function perbaruiPreviewWarna() {
           [
-            document.getElementById("eventNama").value,
-            document.getElementById("eventRuangan").value,
-            document.getElementById("eventTempat").value,
-          ],
-        );
-      }
+            ["fWarna", "fWarnaPreview"],
+            ["eventWarna", "eventWarnaPreview"],
+          ].forEach(function (pair) {
+            const sel = document.getElementById(pair[0]);
+            const preview = document.getElementById(pair[1]);
+            if (!preview) return;
+            const color = sel && sel.value ? sel.value : "#5c6bc0";
+            preview.style.background = color;
+          });
+        }
 
-      window.perbaruiWarnaFormJadwal = perbaruiWarnaFormJadwal;
-      window.perbaruiWarnaFormEvent = perbaruiWarnaFormEvent;
+        window.perbaruiPreviewWarna = perbaruiPreviewWarna;
 
-      // Pasang listener ke field yang memengaruhi warna
-      document.addEventListener("DOMContentLoaded", function () {
-        [
-          "fNamaTamu",
-          "fTujuan",
-          "fInstansi",
-          "fRuangan",
-          "fKegiatanRuang",
-          "fKegiatanBalai",
-          "fJenisKegiatan",
-          "fNamaProgram",
-          "fKegiatanProgram",
-          "fTempat",
-        ].forEach((idName) => {
-          const el = document.getElementById(idName);
-          if (el) {
-            el.addEventListener("input", perbaruiWarnaFormJadwal);
-            el.addEventListener("change", perbaruiWarnaFormJadwal);
-          }
+        // Kompatibilitas: nama lama tetap ada agar pemanggil lama tidak error.
+        window.perbaruiWarnaFormJadwal = perbaruiPreviewWarna;
+        window.perbaruiWarnaFormEvent = perbaruiPreviewWarna;
+
+        document.addEventListener("DOMContentLoaded", function () {
+          // Tampilkan preview sesuai warna yang dipilih saat ini.
+          perbaruiPreviewWarna();
         });
-        ["eventNama", "eventRuangan", "eventTempat"].forEach((idName) => {
-          const el = document.getElementById(idName);
-          if (el) {
-            el.addEventListener("input", perbaruiWarnaFormEvent);
-            el.addEventListener("change", perbaruiWarnaFormEvent);
-          }
-        });
-        perbaruiWarnaFormJadwal();
-        perbaruiWarnaFormEvent();
-      });
+      })();
 
       console.log("✅ Semua fungsi override aktif!");
     </script>
