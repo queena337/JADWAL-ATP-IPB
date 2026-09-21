@@ -1857,12 +1857,14 @@
       }
 
       function detectKategori(item, extra) {
+        // Warna yang dipilih manual lewat form admin HARUS menang di atas
+        // deteksi kata kunci, agar hasil edit warna langsung terlihat.
+        if (item && item.warna && /^#[0-9a-fA-F]{6}$/.test(item.warna)) {
+          return { ...KATEGORI_FALLBACK, color: item.warna };
+        }
         const text = getRecordText(item, extra);
         for (const kat of KATEGORI) {
           if (kat.match.some((re) => re.test(text))) return kat;
-        }
-        if (item && item.warna) {
-          return { ...KATEGORI_FALLBACK, color: item.warna };
         }
         return KATEGORI_FALLBACK;
       }

@@ -697,6 +697,25 @@ function muatSemuaData() {
 // SINKRONISASI JADWAL KE KALENDER
 // ============================================
 function sinkronkanJadwalKeKalender() {
+  // Simpan warna yang sudah dipilih manual user, dikunci per sumber+id.
+  // Tanpa ini, setiap sinkronisasi akan menimpa warna pilihan user dengan
+  // warna otomatis dari nama kegiatan.
+  const warnaTersimpan = new Map();
+  eventData.forEach((e) => {
+    if (e.dariJadwal && e.warna && /^#[0-9a-fA-F]{6}$/.test(e.warna)) {
+      warnaTersimpan.set(`${e.sumber}#${e.sumberId}`, e.warna);
+    }
+  });
+  // Prioritas warna: (1) warna yang baru saja disimpan pada data jadwal sumber,
+  // (2) warna yang sudah tersimpan di event turunan lama, (3) warna otomatis
+  // dari kata kunci nama kegiatan. Tanpa (1), mengubah warna lewat form edit
+  // jadwal tidak akan langsung tampil karena peta di atas masih berisi warna lama.
+  const warnaValid = (w) => (w && /^#[0-9a-fA-F]{6}$/.test(w) ? w : null);
+  const warnaTerpilih = (sumber, sumberId, item, ...nilaiOtomatis) =>
+    warnaValid(item && item.warna) ||
+    warnaTersimpan.get(`${sumber}#${sumberId}`) ||
+    warnaOtomatisDariNama(...nilaiOtomatis);
+
   eventData = eventData.filter((e) => !e.dariJadwal);
 
   kunjunganData.forEach((item) => {
@@ -719,7 +738,14 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan || "-",
         tempat: item.instansi || "-",
         pic: item.pic,
-        warna: warnaOtomatisDariNama(item.nama, item.tujuan, item.instansi),
+        warna: warnaTerpilih(
+          "Kunjungan",
+          item.id,
+          item,
+          item.nama,
+          item.tujuan,
+          item.instansi,
+        ),
         dariJadwal: true,
         sumber: "Kunjungan",
         sumberId: item.id,
@@ -747,7 +773,13 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
-        warna: warnaOtomatisDariNama(item.kegiatan, item.ruangan),
+        warna: warnaTerpilih(
+          "Pemakaian Ruang",
+          item.id,
+          item,
+          item.kegiatan,
+          item.ruangan,
+        ),
         dariJadwal: true,
         sumber: "Pemakaian Ruang",
         sumberId: item.id,
@@ -775,7 +807,13 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
-        warna: warnaOtomatisDariNama(item.kegiatan, item.jenis),
+        warna: warnaTerpilih(
+          "Balai BRI",
+          item.id,
+          item,
+          item.kegiatan,
+          item.jenis,
+        ),
         dariJadwal: true,
         sumber: "Balai BRI",
         sumberId: item.id,
@@ -803,7 +841,14 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.lokasi || "-",
         tempat: item.lokasi || "-",
         pic: item.pic,
-        warna: warnaOtomatisDariNama(item.program, item.kegiatan, item.lokasi),
+        warna: warnaTerpilih(
+          "Per Program",
+          item.id,
+          item,
+          item.program,
+          item.kegiatan,
+          item.lokasi,
+        ),
         dariJadwal: true,
         sumber: "Per Program",
         sumberId: item.id,
