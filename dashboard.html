@@ -266,83 +266,6 @@
               </div>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
-            <section class="legend-section">
-              <div class="section-title">🎨 Keterangan Kegiatan</div>
-              <div class="legend-groups">
-                <div class="legend-group">
-                  <h4>Bidang Layanan</h4>
-                  <div class="legend-items">
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #d32f2f"></span>
-                      KKNT</span
-                    >
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #f57c00"></span>
-                      DOSPULKAM</span
-                    >
-                    <span class="legend-item"
-                      ><span
-                        class="dot dot-light"
-                        style="background: #ffffff"
-                      ></span>
-                      BIMA</span
-                    >
-                  </div>
-                </div>
-                <div class="legend-group">
-                  <h4>Bidang Kawasan</h4>
-                  <div class="legend-items">
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #1e88e5"></span>
-                      AGROEDUTOURISM</span
-                    >
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #fdd835"></span>
-                      TATA KELOLA</span
-                    >
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #6d4c41"></span>
-                      JONGGOL</span
-                    >
-                  </div>
-                </div>
-                <div class="legend-group">
-                  <h4>Waka 3 / TNC</h4>
-                  <div class="legend-items">
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #2e7d32"></span>
-                      TNC</span
-                    >
-                  </div>
-                </div>
-                <div class="legend-group">
-                  <h4>Lainnya</h4>
-                  <div class="legend-items">
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #5c6bc0"></span>
-                      LAINNYA</span
-                    >
-                  </div>
-                </div>
-                <div class="legend-group">
-                  <h4>Kegiatan Umum</h4>
-                  <div class="legend-items">
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #000"></span>
-                      RAPAT</span
-                    >
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #7b1fa2"></span>
-                      PELATIHAN</span
-                    >
-                    <span class="legend-item"
-                      ><span class="dot" style="background: #ec407a"></span>
-                      UNDANGAN</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </section>
           </div>
 
           <div class="card event-list-card">
@@ -361,6 +284,84 @@
               >
                 Loading...
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="legend-section">
+          <div class="section-title">🎨 Keterangan Kegiatan</div>
+          <div class="legend-groups">
+            <div class="legend-group">
+              <h4>Bidang Layanan</h4>
+              <div class="legend-items">
+                <span class="legend-item"
+                  ><span class="dot" style="background: #d32f2f"></span>
+                  KKNT</span
+                >
+                <span class="legend-item"
+                  ><span class="dot" style="background: #f57c00"></span>
+                  DOSPULKAM</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="dot dot-light"
+                    style="background: #ffffff"
+                  ></span>
+                  BIMA</span
+                >
+              </div>
+            </div>
+            <div class="legend-group">
+              <h4>Bidang Kawasan</h4>
+              <div class="legend-items">
+                <span class="legend-item"
+                  ><span class="dot" style="background: #1e88e5"></span>
+                  AGROEDUTOURISM</span
+                >
+                <span class="legend-item"
+                  ><span class="dot" style="background: #fdd835"></span> TATA
+                  KELOLA</span
+                >
+                <span class="legend-item"
+                  ><span class="dot" style="background: #6d4c41"></span>
+                  JONGGOL</span
+                >
+              </div>
+            </div>
+            <div class="legend-group">
+              <h4>Waka 3 / TNC</h4>
+              <div class="legend-items">
+                <span class="legend-item"
+                  ><span class="dot" style="background: #2e7d32"></span>
+                  TNC</span
+                >
+              </div>
+            </div>
+            <div class="legend-group">
+              <h4>Lainnya</h4>
+              <div class="legend-items">
+                <span class="legend-item"
+                  ><span class="dot" style="background: #5c6bc0"></span>
+                  LAINNYA</span
+                >
+              </div>
+            </div>
+            <div class="legend-group">
+              <h4>Kegiatan Umum</h4>
+              <div class="legend-items">
+                <span class="legend-item"
+                  ><span class="dot" style="background: #000"></span>
+                  RAPAT</span
+                >
+                <span class="legend-item"
+                  ><span class="dot" style="background: #7b1fa2"></span>
+                  PELATIHAN</span
+                >
+                <span class="legend-item"
+                  ><span class="dot" style="background: #ec407a"></span>
+                  UNDANGAN</span
+                >
+              </div>
             </div>
           </div>
         </section>
@@ -2412,18 +2413,33 @@
         }
       };
 
+      // Sidebar mobile: CSS menganimasikan dengan kelas ".open",
+      // overlay memakai ".active". Hamburger ikut menandai ".active"
+      // dan aria-expanded agar animasi ikon & aksesibilitas benar.
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
-        if (sidebar) sidebar.classList.toggle("active");
-        if (overlay) overlay.classList.toggle("active");
+        const hamburger = document.getElementById("hamburgerBtn");
+        if (!sidebar) return;
+        const open = !sidebar.classList.contains("open");
+        sidebar.classList.toggle("open", open);
+        if (overlay) overlay.classList.toggle("active", open);
+        if (hamburger) {
+          hamburger.classList.toggle("active", open);
+          hamburger.setAttribute("aria-expanded", open ? "true" : "false");
+        }
       }
 
       function closeSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
-        if (sidebar) sidebar.classList.remove("active");
+        const hamburger = document.getElementById("hamburgerBtn");
+        if (sidebar) sidebar.classList.remove("open");
         if (overlay) overlay.classList.remove("active");
+        if (hamburger) {
+          hamburger.classList.remove("active");
+          hamburger.setAttribute("aria-expanded", "false");
+        }
       }
 
       function switchMenu(page) {

@@ -824,16 +824,12 @@ function setSidebar(open) {
   const overlay = document.getElementById("overlay");
   const hamburger = document.getElementById("hamburgerBtn");
 
+  // Posisi sidebar (termasuk slide-in mobile) diatur oleh CSS
+  // (.sidebar / .sidebar.open), cukup sinkronkan kelasnya di sini.
   sidebar.classList.toggle("open", open);
   overlay.classList.toggle("active", open);
   hamburger.classList.toggle("active", open);
   hamburger.setAttribute("aria-expanded", String(open));
-
-  if (window.innerWidth <= 768) {
-    sidebar.style.transform = open ? "translateX(0)" : "translateX(-105%)";
-  } else {
-    sidebar.style.transform = "";
-  }
 }
 
 function toggleSidebar() {
@@ -851,10 +847,6 @@ function closeSidebar() {
   overlay.classList.remove("active");
   hamburger.classList.remove("active");
   hamburger.setAttribute("aria-expanded", "false");
-
-  if (window.innerWidth <= 768) {
-    sidebar.style.transform = "translateX(-105%)";
-  }
 }
 
 document.addEventListener("click", function (e) {
@@ -886,16 +878,12 @@ window.addEventListener("resize", function () {
   const overlay = document.getElementById("overlay");
   const hamburger = document.getElementById("hamburgerBtn");
 
+  // Posisi & animasi sidebar ditangani CSS; di sini cukup sinkronkan kelas.
   if (window.innerWidth > 768) {
-    sidebar.style.transform = "";
     sidebar.classList.remove("open");
     overlay.classList.remove("active");
     hamburger.classList.remove("active");
     hamburger.setAttribute("aria-expanded", "false");
-  } else {
-    if (!sidebar.classList.contains("open")) {
-      sidebar.style.transform = "translateX(-105%)";
-    }
   }
 });
 
@@ -919,13 +907,6 @@ const pageTitles = {
 function switchMenu(page) {
   const link = document.querySelector(`.menu a[data-page="${page}"]`);
   if (link) link.click();
-}
-
-function switchTab(tab) {
-  setTimeout(() => {
-    const tabBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
-    if (tabBtn) tabBtn.click();
-  }, 200);
 }
 
 document.querySelectorAll(".menu a").forEach((link) => {
@@ -3682,9 +3663,9 @@ document.addEventListener("DOMContentLoaded", function () {
   initBarChartLaporan("mingguan");
   initPieChartLaporan();
   generateLaporan();
-  if (window.innerWidth <= 768) {
-    document.getElementById("sidebar").style.transform = "translateX(-100%)";
-  }
+  // Posisi sidebar di mobile diatur oleh CSS (.sidebar / .sidebar.open).
+  // Jangan set transform inline di sini karena akan menimpa kelas .open
+  // sehingga menu mobile tidak bisa terbuka.
   console.log("✅ Data berhasil dimuat dari localStorage!");
   console.log("📋 Kunjungan:", kunjunganData.length, "data");
   console.log("🏢 Ruang:", ruangData.length, "data");

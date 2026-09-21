@@ -21,6 +21,14 @@
         -webkit-text-size-adjust: 100%;
       }
 
+      /* Cegah elemen lebar menimbulkan ruang kosong di sisi kanan
+         (tabel di dalam .table-wrapper tetap bisa di-scroll horizontal). */
+      html,
+      body {
+        overflow-x: hidden;
+        width: 100%;
+      }
+
       body {
         background: #eef1f7;
         min-height: 100vh;
