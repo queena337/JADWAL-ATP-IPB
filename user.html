@@ -2908,6 +2908,14 @@
       // REFRESH DATA
       // ============================================
       function refreshData() {
+        // Jika data realtime dari Firestore sudah pernah diterima, JANGAN
+        // menimpanya dengan localStorage. localStorage halaman user sering
+        // kosong/basi (berbeda perangkat dengan admin) sehingga refresh
+        // berkala ini akan mengembalikan warna/kegiatan ke versi lama.
+        if (typeof _realtimeReceived !== "undefined" && _realtimeReceived) {
+          renderAll();
+          return;
+        }
         data = getDataFromStorage();
         renderAll();
       }
