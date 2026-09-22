@@ -1719,6 +1719,9 @@
       // STATE
       // ============================================
       let data = getDataFromStorage();
+      // Penanda apakah data realtime dari Firestore sudah pernah diterima.
+      // Dideklarasikan lebih awal agar aman dipakai oleh refreshData().
+      let _realtimeReceived = false;
       let _now = new Date();
       let currentMonth = _now.getMonth();
       let currentYear = _now.getFullYear();
@@ -1839,6 +1842,16 @@
         text: "#fff",
       };
 
+      // Validasi warna hex: terima 3 digit (#000) maupun 6 digit (#5c6bc0).
+      // Tanpa ini warna 3 digit seperti "#000" (RAPAT) dianggap tidak valid
+      // sehingga hasil edit warna tidak ikut tampil.
+      function warnaHexValid(w) {
+        return (
+          typeof w === "string" &&
+          /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(w)
+        );
+      }
+
       function getRecordText(item, extra) {
         const fields = [
           item.jenis,
@@ -1859,7 +1872,7 @@
       function detectKategori(item, extra) {
         // Warna yang dipilih manual lewat form admin HARUS menang di atas
         // deteksi kata kunci, agar hasil edit warna langsung terlihat.
-        if (item && item.warna && /^#[0-9a-fA-F]{6}$/.test(item.warna)) {
+        if (item && item.warna && warnaHexValid(item.warna)) {
           return { ...KATEGORI_FALLBACK, color: item.warna };
         }
         const text = getRecordText(item, extra);
@@ -2554,7 +2567,7 @@
           if (hasEvent) {
             dayEvents.slice(0, 3).forEach((act) => {
               const warna =
-                act.warna && /^#[0-9a-fA-F]{6}$/.test(act.warna)
+                act.warna && warnaHexValid(act.warna)
                   ? act.warna
                   : act.kategori.color;
               const edge =
@@ -2912,7 +2925,7 @@
         // menimpanya dengan localStorage. localStorage halaman user sering
         // kosong/basi (berbeda perangkat dengan admin) sehingga refresh
         // berkala ini akan mengembalikan warna/kegiatan ke versi lama.
-        if (typeof _realtimeReceived !== "undefined" && _realtimeReceived) {
+        if (_realtimeReceived) {
           renderAll();
           return;
         }
@@ -2974,7 +2987,6 @@
       // ============================================
       // REALTIME DARI FIREBASE
       // ============================================
-      let _realtimeReceived = false;
       window.terapkanDataRealtimeUser = function (remoteData) {
         if (!remoteData) return;
         _realtimeReceived = true;

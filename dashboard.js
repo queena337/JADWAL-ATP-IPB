@@ -178,6 +178,13 @@ function warnaOtomatisDariNama(...values) {
   return deteksiKategori(...values).color;
 }
 
+// Validasi warna hex: terima 3 digit (#000) maupun 6 digit (#5c6bc0).
+// Sebelumnya hanya 6 digit yang lolos sehingga warna 3 digit seperti "#000"
+// (kategori RAPAT) selalu ditolak dan jatuh ke warna lama/fallback.
+function warnaHexValid(w) {
+  return typeof w === "string" && /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(w);
+}
+
 function closeAppDialog() {
   const dialog = document.getElementById("appDialog");
   if (dialog) dialog.classList.remove("active");
@@ -702,7 +709,7 @@ function sinkronkanJadwalKeKalender() {
   // warna otomatis dari nama kegiatan.
   const warnaTersimpan = new Map();
   eventData.forEach((e) => {
-    if (e.dariJadwal && e.warna && /^#[0-9a-fA-F]{6}$/.test(e.warna)) {
+    if (e.dariJadwal && e.warna && warnaHexValid(e.warna)) {
       warnaTersimpan.set(`${e.sumber}#${e.sumberId}`, e.warna);
     }
   });
@@ -710,7 +717,7 @@ function sinkronkanJadwalKeKalender() {
   // (2) warna yang sudah tersimpan di event turunan lama, (3) warna otomatis
   // dari kata kunci nama kegiatan. Tanpa (1), mengubah warna lewat form edit
   // jadwal tidak akan langsung tampil karena peta di atas masih berisi warna lama.
-  const warnaValid = (w) => (w && /^#[0-9a-fA-F]{6}$/.test(w) ? w : null);
+  const warnaValid = (w) => (warnaHexValid(w) ? w : null);
   const warnaTerpilih = (sumber, sumberId, item, ...nilaiOtomatis) =>
     warnaValid(item && item.warna) ||
     warnaTersimpan.get(`${sumber}#${sumberId}`) ||
@@ -1753,9 +1760,7 @@ function renderEventStrips(events, dateKey) {
       const isStart = start === dateKey;
       const isEnd = end === dateKey;
       const label = isStart ? event.nama || "Kegiatan" : "";
-      const warna = /^#[0-9a-fA-F]{6}$/.test(event.warna)
-        ? event.warna
-        : "#111827";
+      const warna = warnaHexValid(event.warna) ? event.warna : "#111827";
       const edgeClass = `${isStart ? "event-strip-start" : ""} ${isEnd ? "event-strip-end" : ""}`;
       return `<span class="event-strip ${edgeClass}" style="background-color: ${warna};" title="Klik untuk melihat detail" onclick="lihatDetailEvent(${event.id}); event.stopPropagation();">${label}</span>`;
     })
@@ -1938,7 +1943,7 @@ function showEventDetail(tanggal) {
 
   container.innerHTML = events
     .map((e) => {
-      const warna = /^#[0-9a-fA-F]{6}$/.test(e.warna) ? e.warna : "#111827";
+      const warna = warnaHexValid(e.warna) ? e.warna : "#111827";
       return `
         <div style="padding:8px 12px;background:#fff;border-radius:8px;margin-bottom:6px;border-left:4px solid ${warna};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
