@@ -1852,6 +1852,31 @@
         );
       }
 
+      // Normalisasi hex ke bentuk 6 digit huruf kecil agar "#fff" == "#ffffff".
+      function normalizeHex(w) {
+        if (!warnaHexValid(w)) return null;
+        let h = w.toLowerCase();
+        if (h.length === 4) {
+          h =
+            "#" +
+            h[1] + h[1] +
+            h[2] + h[2] +
+            h[3] + h[3];
+        }
+        return h;
+      }
+
+      // Cari kategori yang cocok dengan warna tertentu (hasil edit manual
+      // admin). Agar label kategori ikut berubah, bukan hanya warnanya.
+      function kategoriDariWarna(warna) {
+        const target = normalizeHex(warna);
+        if (!target) return null;
+        for (const kat of KATEGORI) {
+          if (normalizeHex(kat.color) === target) return kat;
+        }
+        return null;
+      }
+
       function getRecordText(item, extra) {
         const fields = [
           item.jenis,
@@ -1873,7 +1898,13 @@
         // Warna yang dipilih manual lewat form admin HARUS menang di atas
         // deteksi kata kunci, agar hasil edit warna langsung terlihat.
         if (item && item.warna && warnaHexValid(item.warna)) {
-          return { ...KATEGORI_FALLBACK, color: item.warna };
+          // Cocokkan warna pilihan dengan kategori yang sesuai supaya label
+          // kategori (key/bidang) ikut berubah, bukan hanya warnanya.
+          const dariWarna = kategoriDariWarna(item.warna);
+          if (dariWarna) return dariWarna;
+          // Warna manual yang tidak ada di daftar kategori (mis. warna bebas)
+          // tetap ditampilkan sebagai LAINNYA dengan warna tersebut.
+          return { ...KATEGORI_FALLBACK, color: normalizeHex(item.warna) };
         }
         const text = getRecordText(item, extra);
         for (const kat of KATEGORI) {
