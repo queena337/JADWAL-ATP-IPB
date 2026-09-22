@@ -666,6 +666,22 @@ tbody tr:hover {
   color: #ccc;
   cursor: default;
 }
+
+/* Tanggal dari bulan lain (awal/akhir grid): angka samar, latar lebih pudar.
+   Kegiatan yang menyambung melewati batas bulan tetap terlihat. */
+.calendar-grid .day.other-month,
+.calendar-grid-full .day.other-month {
+  background: #fafbfe;
+  opacity: 0.55;
+}
+.calendar-grid .day.other-month .day-number,
+.calendar-grid-full .day.other-month .day-number {
+  color: #9aa3b8;
+}
+.calendar-grid .day.other-month.no-event,
+.calendar-grid-full .day.other-month.no-event {
+  background: #fafbfe;
+}
 .calendar-grid .day.has-event,
 .calendar-grid-full .day.has-event {
   background: #1a237e;

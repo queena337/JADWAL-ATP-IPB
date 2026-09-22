@@ -542,6 +542,18 @@
         background: transparent;
         border-color: transparent;
       }
+      /* Tanggal dari bulan lain (awal/akhir grid): angka samar, kegiatan
+         yang menyambung melewati batas bulan tetap terlihat. */
+      .calendar-grid .day.other-month {
+        background: #fafbfe;
+        opacity: 0.55;
+      }
+      .calendar-grid .day.other-month .day-number {
+        color: #9aa3b8;
+      }
+      .calendar-grid .day.other-month.no-event {
+        background: #fafbfe;
+      }
       .calendar-grid .day.no-event {
         background: #fff;
         color: #47506a;
@@ -1935,6 +1947,18 @@
         return event.tanggalSelesai || getEventStartKey(event);
       }
 
+      // Tambah/kurang n hari pada dateKey "YYYY-MM-DD", kembalikan dateKey baru.
+      function addDays(dateKey, n) {
+        const parts = String(dateKey).split("-");
+        const dt = new Date(
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10) - 1,
+          parseInt(parts[2], 10),
+        );
+        dt.setDate(dt.getDate() + n);
+        return formatDateKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      }
+
       function eventOccursOnDate(event, dateKey) {
         const start = getEventStartKey(event);
         const end = getEventEndKey(event);
@@ -2553,19 +2577,14 @@
 
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
         const today = new Date();
         const todayDate = today.getDate();
         const todayMonth = today.getMonth();
         const todayYear = today.getFullYear();
 
+        // Kegiatan bulan berjalan (untuk daftar "Kegiatan Bulan Ini").
         const activities = buildActivities(month, year);
-
-        // Kelompokkan kegiatan per tanggal (urut jam mulai)
-        const activitiesByDay = {};
-        activities.forEach((act) => {
-          if (!activitiesByDay[act.day]) activitiesByDay[act.day] = [];
-          activitiesByDay[act.day].push(act);
-        });
 
         // Escaping teks untuk atribut & konten HTML
         const esc = (s) =>
@@ -2575,30 +2594,41 @@
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
 
-        let html = "";
-        const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-        dayNames.forEach((name) => {
-          html += `<div class="day-name">${name}</div>`;
+        // Peta event per tanggal LENGKAP (YYYY-MM-DD) langsung dari data
+        // event, dengan penanda awal/akhir yang dihitung GLOBAL (startKey/
+        // endKey sebenarnya). Ini membuat label kegiatan yang menyambung
+        // melewati batas bulan tetap utuh dan tidak terputus.
+        const eventsByDateKey = {};
+        (data.eventData || []).forEach((event) => {
+          const startKey = getEventStartKey(event);
+          const endKey = getEventEndKey(event);
+          if (!startKey || !endKey) return;
+          const jenis = jenisDariEvent(event);
+          const kat = detectKategori({ ...event, kategori: jenis }, jenis);
+          let cur = startKey;
+          let guard = 0;
+          while (cur <= endKey && guard < 400) {
+            guard++;
+            if (!eventsByDateKey[cur]) eventsByDateKey[cur] = [];
+            eventsByDateKey[cur].push({
+              id: event.id,
+              nama: bersihkanNamaEvent(event.nama),
+              waktu: event.waktu || "--:--",
+              jenis: jenis,
+              warna: event.warna,
+              kategori: kat,
+              isStart: cur === startKey,
+              isEnd: cur === endKey,
+            });
+            cur = addDays(cur, 1);
+          }
         });
 
-        for (let i = 0; i < firstDay; i++) {
-          html += `<div class="day empty"></div>`;
-        }
-
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dayEvents = activitiesByDay[d] || [];
-          const hasEvent = dayEvents.length > 0;
-          const isToday =
-            d === todayDate && month === todayMonth && year === todayYear;
-
-          let className = "day";
-          if (hasEvent) className += " has-event";
-          if (isToday) className += " today";
-          if (!hasEvent && !isToday) className += " no-event";
-
-          // Label kegiatan memanjang (strip) per kegiatan, mirip kalender admin
+        // Buat HTML strip kegiatan untuk satu tanggal (edge global).
+        const stripsForDate = (dateKey, clickDay) => {
+          const dayEvents = eventsByDateKey[dateKey] || [];
           let strips = "";
-          if (hasEvent) {
+          if (dayEvents.length > 0) {
             dayEvents.slice(0, 3).forEach((act) => {
               const warna =
                 act.warna && warnaHexValid(act.warna)
@@ -2611,7 +2641,7 @@
               strips +=
                 `<span class="event-strip${edge}" style="background-color:${warna}" ` +
                 `title="${esc(act.nama)} · ${esc(act.waktu)}" ` +
-                `onclick="event.stopPropagation(); showEventDetail(${d})">${esc(label)}</span>`;
+                `onclick="event.stopPropagation(); showEventDetail(${clickDay})">${esc(label)}</span>`;
             });
             if (dayEvents.length > 3) {
               strips += `<span class="event-strip" style="background:#e8ecf7;color:#16205c">+${
@@ -2619,11 +2649,57 @@
               } lagi</span>`;
             }
           }
+          return strips;
+        };
+
+        let html = "";
+        const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+        dayNames.forEach((name) => {
+          html += `<div class="day-name">${name}</div>`;
+        });
+
+        // Jumlah sel = kelipatan 7 supaya grid penuh rapi.
+        const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+        // Tanggal dari bulan sebelumnya (angka samar).
+        for (let i = firstDay; i > 0; i--) {
+          const d = daysInPrevMonth - i + 1;
+          const dateKey = addDays(
+            formatDateKey(year, month, 1),
+            -(i),
+          );
+          html +=
+            `<div class="day other-month" ` +
+            `title="${esc((eventsByDateKey[dateKey] || []).map((a) => a.nama).join(", "))}">` +
+            `<span class="day-number">${d}</span>${stripsForDate(dateKey, d)}</div>`;
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateKey = formatDateKey(year, month, d);
+          const dayEvents = eventsByDateKey[dateKey] || [];
+          const hasEvent = dayEvents.length > 0;
+          const isToday =
+            d === todayDate && month === todayMonth && year === todayYear;
+
+          let className = "day";
+          if (hasEvent) className += " has-event";
+          if (isToday) className += " today";
+          if (!hasEvent && !isToday) className += " no-event";
 
           html +=
             `<div class="${className}" onclick="showEventDetail(${d})" ` +
             `title="${esc(dayEvents.map((a) => a.nama).join(", "))}">` +
-            `<span class="day-number">${d}</span>${strips}</div>`;
+            `<span class="day-number">${d}</span>${stripsForDate(dateKey, d)}</div>`;
+        }
+
+        // Tanggal dari bulan berikutnya sampai grid penuh (angka samar).
+        const lastDayKey = formatDateKey(year, month, daysInMonth);
+        for (let i = firstDay + daysInMonth, d = 1; i < totalCells; i++, d++) {
+          const dateKey = addDays(lastDayKey, d);
+          html +=
+            `<div class="day other-month" ` +
+            `title="${esc((eventsByDateKey[dateKey] || []).map((a) => a.nama).join(", "))}">` +
+            `<span class="day-number">${d}</span>${stripsForDate(dateKey, d)}</div>`;
         }
 
         grid.innerHTML = html;

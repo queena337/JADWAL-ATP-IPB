@@ -1767,6 +1767,71 @@ function renderEventStrips(events, dateKey) {
     .join("");
 }
 
+// Bangun seluruh sel kalender satu bulan, termasuk tanggal dari bulan
+// sebelumnya (awal) dan bulan berikutnya (akhir). Tanggal bulan lain diberi
+// kelas "other-month" agar angkanya samar, tetapi label kegiatan yang
+// menyambung melewati batas bulan tetap terlihat.
+function buildCalendarDaysHtml(month, year, opts) {
+  const withClick = opts && opts.withClick;
+  const today = new Date();
+  const todayDate = today.getDate();
+  const todayMonth = today.getMonth();
+  const todayYear = today.getFullYear();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  // Jumlah sel = bulatkan ke atas ke kelipatan 7 supaya grid penuh rapi.
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  const renderCell = (y, m, d, isOtherMonth) => {
+    const dateKey = formatDateKey(y, m, d);
+    const dayEvents = getEventsForCalendarDay(y, m, d);
+    const hasEvent = dayEvents.length > 0;
+    const isToday = d === todayDate && m === todayMonth && y === todayYear;
+
+    let className = "day";
+    if (isOtherMonth) className += " other-month";
+    if (hasEvent) className += " has-event";
+    if (isToday) className += " today";
+    if (!hasEvent && !isToday && !isOtherMonth) className += " no-event";
+
+    const title = dayEvents
+      .map((event) => event.nama || "Kegiatan")
+      .join(", ");
+    const click = withClick ? ` onclick="showEventDetail(${d})"` : "";
+    return `<div class="${className}"${click} title="${title}"><span class="day-number">${d}</span>${renderEventStrips(dayEvents, dateKey)}</div>`;
+  };
+
+  let html = "";
+
+  // Tanggal dari bulan sebelumnya.
+  const prevMonthDate = new Date(year, month - 1, 1);
+  const prevMonth = prevMonthDate.getMonth();
+  const prevYear = prevMonthDate.getFullYear();
+  for (let i = firstDay; i > 0; i--) {
+    const d = daysInPrevMonth - i + 1;
+    html += renderCell(prevYear, prevMonth, d, true);
+  }
+
+  // Tanggal bulan berjalan.
+  for (let d = 1; d <= daysInMonth; d++) {
+    html += renderCell(year, month, d, false);
+  }
+
+  // Tanggal dari bulan berikutnya sampai grid penuh.
+  const nextMonthDate = new Date(year, month + 1, 1);
+  const nextMonth = nextMonthDate.getMonth();
+  const nextYear = nextMonthDate.getFullYear();
+  let nextDay = 1;
+  for (let i = firstDay + daysInMonth; i < totalCells; i++) {
+    html += renderCell(nextYear, nextMonth, nextDay++, true);
+  }
+
+  return html;
+}
+
 function renderCalendar(month, year) {
   const grid = document.getElementById("calendarGrid");
   const monthYear = document.getElementById("monthYear");
@@ -1787,33 +1852,13 @@ function renderCalendar(month, year) {
   ];
   monthYear.value = `${year}-${String(month + 1).padStart(2, "0")}`;
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date().getDate();
-  const todayMonth = new Date().getMonth();
-  const todayYear = new Date().getFullYear();
-
   let html = "";
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
   dayNames.forEach((name) => {
     html += `<div class="day-name">${name}</div>`;
   });
 
-  for (let i = 0; i < firstDay; i++) {
-    html += `<div class="day empty"></div>`;
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateKey = formatDateKey(year, month, d);
-    const dayEvents = getEventsForCalendarDay(year, month, d);
-    const hasEvent = dayEvents.length > 0;
-    const isToday = d === today && month === todayMonth && year === todayYear;
-    let className = "day";
-    if (hasEvent) className += " has-event";
-    if (isToday) className += " today";
-    if (!hasEvent && !isToday) className += " no-event";
-    html += `<div class="${className}" title="${dayEvents.map((event) => event.nama || "Kegiatan").join(", ")}"><span class="day-number">${d}</span>${renderEventStrips(dayEvents, dateKey)}</div>`;
-  }
+  html += buildCalendarDaysHtml(month, year, { withClick: false });
 
   grid.innerHTML = html;
   renderDashboardEvents();
@@ -1871,37 +1916,13 @@ function renderCalendarFull(month, year) {
   ];
   monthYear.value = `${year}-${String(month + 1).padStart(2, "0")}`;
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  const todayDate = today.getDate();
-  const todayMonth = today.getMonth();
-  const todayYear = today.getFullYear();
-
   let html = "";
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
   dayNames.forEach((name) => {
     html += `<div class="day-name">${name}</div>`;
   });
 
-  for (let i = 0; i < firstDay; i++) {
-    html += `<div class="day empty"></div>`;
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateKey = formatDateKey(year, month, d);
-    const dayEvents = getEventsForCalendarDay(year, month, d);
-    const hasEvent = dayEvents.length > 0;
-    const isToday =
-      d === todayDate && month === todayMonth && year === todayYear;
-
-    let className = "day";
-    if (hasEvent) className += " has-event";
-    if (isToday) className += " today";
-    if (!hasEvent && !isToday) className += " no-event";
-
-    html += `<div class="${className}" onclick="showEventDetail(${d})" title="${dayEvents.map((event) => event.nama || "Kegiatan").join(", ")}"><span class="day-number">${d}</span>${renderEventStrips(dayEvents, dateKey)}</div>`;
-  }
+  html += buildCalendarDaysHtml(month, year, { withClick: true });
 
   grid.innerHTML = html;
   showEventDetail(null);
