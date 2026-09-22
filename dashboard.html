@@ -266,6 +266,27 @@
               </div>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-hint">
+              <span class="calendar-hint-icon" aria-hidden="true">💡</span>
+              <div class="calendar-hint-text">
+                <strong>Ingin menambah kegiatan ke kalender?</strong>
+                <span
+                  >Klik tanggal di kalender hanya untuk melihat detail. Untuk
+                  <b>menambah, mengubah, atau menghapus</b> kegiatan, buka menu
+                  <b>Jadwal Harian</b> lalu tekan tombol <b>+ Tambah</b>.</span
+                >
+              </div>
+              <button
+                type="button"
+                class="calendar-hint-btn"
+                onclick="
+                  switchMenu('jadwal');
+                  return false;
+                "
+              >
+                ➜ Buka Jadwal Harian
+              </button>
+            </div>
           </div>
 
           <div class="card event-list-card">
@@ -580,8 +601,8 @@
                 </select>
                 <button
                   type="button"
-                  class="btn-add"
-                  style="margin-top: 4px; padding: 4px 12px; font-size: 12px"
+                  class="btn-master-add"
+                  data-label="Tambah Instansi"
                   onclick="tambahMasterInstansiCepat()"
                 >
                   + Tambah Instansi
@@ -777,8 +798,8 @@
               </select>
               <button
                 type="button"
-                class="btn-add"
-                style="margin-top: 4px; padding: 4px 12px; font-size: 12px"
+                class="btn-master-add"
+                data-label="Tambah Ruangan"
                 onclick="tambahMasterRuanganCepat()"
               >
                 + Tambah Ruangan
@@ -791,8 +812,8 @@
               </select>
               <button
                 type="button"
-                class="btn-add"
-                style="margin-top: 4px; padding: 4px 12px; font-size: 12px"
+                class="btn-master-add"
+                data-label="Tambah Tempat"
                 onclick="tambahMasterTempatCepat()"
               >
                 + Tambah Tempat
@@ -805,8 +826,8 @@
               </select>
               <button
                 type="button"
-                class="btn-add"
-                style="margin-top: 4px; padding: 4px 12px; font-size: 12px"
+                class="btn-master-add"
+                data-label="Tambah PIC"
                 onclick="tambahMasterPicCepat()"
               >
                 + Tambah PIC

@@ -2169,3 +2169,311 @@ tbody tr:hover {
     font-size: 12px;
   }
 }
+/* ============================================================
+   UPGRADE DESAIN FORM MODAL (Tambah/Edit Jadwal & Event)
+   ============================================================ */
+
+/* Header modal: latar gradien + garis aksen, terlihat lebih premium */
+.modal-content .modal-header {
+  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+  margin: -28px -28px 22px;
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
+  border-bottom: none;
+}
+.modal-content .modal-header h3 {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.2px;
+}
+.modal-content .modal-header h3::before {
+  content: "";
+  width: 5px;
+  height: 22px;
+  border-radius: 3px;
+  background: #ffca28;
+  display: inline-block;
+}
+.modal-content .modal-header .modal-close {
+  color: rgba(255, 255, 255, 0.85);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 24px;
+}
+.modal-content .modal-header .modal-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  transform: none;
+}
+
+/* Beberapa kelas khusus tetap pertahankan header-nya netral
+   (mis. modal detail event yang punya desain sendiri). */
+.event-detail-modal.modal-content .modal-header,
+.app-dialog .modal-header {
+  background: none;
+  margin: 0 0 18px;
+  padding: 0 0 12px;
+  border-radius: 0;
+  border-bottom: 2px solid #eef1f7;
+}
+.event-detail-modal.modal-content .modal-header h3,
+.app-dialog .modal-header h3 {
+  color: #1a237e;
+}
+
+/* Label field: beri ikon titik warna & huruf kapital halus */
+#jadwalModal .form-group > label,
+#eventModal .form-group > label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #5f6b8a;
+  margin-bottom: 3px;
+}
+
+/* Input & select: lebih lega, sudut lembut, bayangan halus saat fokus */
+#jadwalModal .form-group input,
+#jadwalModal .form-group select,
+#eventModal .form-group input,
+#eventModal .form-group select {
+  padding: 11px 14px;
+  border: 1.5px solid #dfe3ec;
+  border-radius: 10px;
+  background: #fbfcfe;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+#jadwalModal .form-group input:hover,
+#jadwalModal .form-group select:hover,
+#eventModal .form-group input:hover,
+#eventModal .form-group select:hover {
+  border-color: #c3cbe0;
+}
+#jadwalModal .form-group input:focus,
+#jadwalModal .form-group select:focus,
+#eventModal .form-group input:focus,
+#eventModal .form-group select:focus {
+  background: #fff;
+  border-color: #3949ab;
+  box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.12);
+}
+
+/* ===== Tombol master "+ Tambah Instansi/Ruangan/Tempat/PIC" ===== */
+/* Ubah tombol add yang menempel di bawah field menjadi chip rapi. */
+#jadwalModal .form-group > .btn-master-add,
+#eventModal .form-group > .btn-master-add {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 7px 14px 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  background: #eef1fb;
+  color: #1a237e;
+  border: 1.5px dashed #b9c1e6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.18s ease;
+}
+#jadwalModal .form-group > .btn-master-add::before,
+#eventModal .form-group > .btn-master-add::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1a237e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+#jadwalModal .form-group > .btn-master-add:hover,
+#eventModal .form-group > .btn-master-add:hover {
+  background: #1a237e;
+  color: #fff;
+  border-style: solid;
+  border-color: #1a237e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.25);
+}
+#jadwalModal .form-group > .btn-master-add:hover::before,
+#eventModal .form-group > .btn-master-add:hover::before {
+  background: #ffca28;
+  color: #1a237e;
+}
+
+/* ===== Preview warna kegiatan ===== */
+#jadwalModal #fWarnaPreview,
+#eventModal #eventWarnaPreview {
+  width: 46px;
+  height: 28px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Tombol aksi bawah (Simpan / Hapus) ===== */
+#jadwalModal form > .form-group:last-child,
+#eventModal form > .form-group:last-child {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed #e3e8f3;
+}
+#jadwalModal form > .form-group:last-child .btn-add,
+#eventModal form > .form-group:last-child .btn-add {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.25);
+}
+#jadwalModal form > .form-group:last-child .btn-add:hover,
+#eventModal form > .form-group:last-child .btn-add:hover {
+  background: linear-gradient(135deg, #232f8f, #4a5bc4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(26, 35, 126, 0.35);
+}
+#jadwalModal form > .form-group:last-child .btn-delete,
+#eventModal form > .form-group:last-child .btn-delete {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(244, 67, 54, 0.22);
+}
+
+/* ============================================================
+   NOTE PANDUAN DI BAWAH KALENDER (Dashboard)
+   ============================================================ */
+.calendar-hint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff8e1, #fffdf5);
+  border: 1px solid #ffe08a;
+  border-left: 5px solid #ffb300;
+}
+.calendar-hint .calendar-hint-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  background: #ffca28;
+  color: #5d4000;
+  box-shadow: 0 4px 10px rgba(255, 179, 0, 0.35);
+}
+.calendar-hint .calendar-hint-text {
+  flex: 1;
+  min-width: 0;
+}
+.calendar-hint .calendar-hint-text strong {
+  display: block;
+  color: #7a5400;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+}
+.calendar-hint .calendar-hint-text span {
+  color: #8a6a1a;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.calendar-hint .calendar-hint-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+.calendar-hint .calendar-hint-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 20px rgba(26, 35, 126, 0.38);
+}
+
+@media (max-width: 640px) {
+  .calendar-hint {
+    flex-wrap: wrap;
+  }
+  .calendar-hint .calendar-hint-btn {
+    width: 100%;
+  }
+}/* ============================================================
+   TAMBAHAN: Percantik label & kelompok field pada modal jadwal
+   ============================================================ */
+
+/* Ikon kecil di depan label field tertentu (tanpa mengubah teks HTML) */
+#jadwalModal label[for="fTanggalMulai"]::before {
+  content: "▶ ";
+  color: #3949ab;
+}
+#jadwalModal label[for="fTanggalSelesai"]::before {
+  content: "⏹ ";
+  color: #3949ab;
+}
+
+/* Field tanggal & waktu: beri latar lembut pada grid-nya */
+#jadwalModal form > div[style*="grid-template-columns"] {
+  background: #f6f8fd;
+  border: 1px solid #e8edf8;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Select: tambahkan panah kustom agar seragam & modern */
+#jadwalModal .form-group select,
+#eventModal .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235f6b8a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* Baris preview warna: kotak putih dengan border halus */
+#jadwalModal .form-group:has(#fWarna) > div,
+#eventModal .form-group:has(#eventWarna) > div {
+  background: #f6f8fd;
+  border: 1px solid #e8edf8;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* Form modal jadwal: beri padding ekstra di bawah agar tombol tidak mepet */
+#jadwalModal form,
+#eventModal form {
+  padding-bottom: 4px;
+}
