@@ -2110,7 +2110,7 @@ function tampilkanFieldTambahanDetail(event, modal) {
     );
     fields.push(
       `<div class="event-detail-item event-detail-item-full">` +
-        `<span class="event-detail-label">Kategori Warna</span>` +
+        `<span class="event-detail-label">Kategori</span>` +
         `<strong><span class="event-detail-cat-tag${isLight ? " is-light" : ""}">${esc(namaKategori)}</span></strong>` +
         `</div>`,
     );
