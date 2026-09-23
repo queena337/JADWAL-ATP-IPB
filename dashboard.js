@@ -2023,7 +2023,117 @@ function tampilkanDetailEvent(id) {
   document.getElementById("detailEventTempat").textContent =
     event.tempat || "-";
   document.getElementById("detailEventPic").textContent = event.pic || "-";
-  document.getElementById("eventDetailModal").classList.add("active");
+
+  // Warna aksen modal mengikuti warna label kegiatan di kalender.
+  const warna = warnaHexValid(event.warna) ? event.warna : "#1a237e";
+  const modal = document.getElementById("eventDetailModal");
+  modal.style.setProperty("--event-color", warna);
+
+  // Lengkapi field sesuai jenis kegiatan (mengambil data sumber aslinya).
+  tampilkanFieldTambahanDetail(event, modal);
+
+  modal.classList.add("active");
+}
+
+// Susun field detail tambahan sesuai jenis kegiatan, memakai data sumber
+// (kunjunganData/ruangData/balaiData/programData) agar tampil selengkap
+// saat kegiatan dibuat.
+function tampilkanFieldTambahanDetail(event, modal) {
+  const extra = document.getElementById("detailEventExtra");
+  if (!extra) return;
+
+  const esc = (v) => String(v == null ? "-" : v);
+  const item = (label, value, full) =>
+    `<div class="event-detail-item${full ? " event-detail-item-full" : ""}">` +
+    `<span class="event-detail-label">${esc(label)}</span>` +
+    `<strong>${esc(value)}</strong></div>`;
+
+  let sumber = null;
+  let fields = [];
+
+  if (event.dariJadwal) {
+    switch (event.sumber) {
+      case "Kunjungan":
+        sumber = (kunjunganData || []).find((d) => d.id === event.sumberId);
+        if (sumber) {
+          fields.push(item("Instansi", sumber.instansi || "Umum"));
+          fields.push(
+            item(
+              "Jumlah Pengunjung",
+              sumber.jumlahPengunjung != null ? sumber.jumlahPengunjung : "-",
+            ),
+          );
+          fields.push(item("Tujuan / Keperluan", sumber.tujuan || "-", true));
+        }
+        break;
+      case "Pemakaian Ruang":
+        sumber = (ruangData || []).find((d) => d.id === event.sumberId);
+        if (sumber) {
+          fields.push(
+            item(
+              "Kapasitas",
+              sumber.kapasitas != null
+                ? sumber.kapasitas + " orang"
+                : "-",
+            ),
+          );
+          if (sumber.jumlahPengunjung)
+            fields.push(item("Jumlah Pengunjung", sumber.jumlahPengunjung));
+        }
+        break;
+      case "Balai BRI":
+        sumber = (balaiData || []).find((d) => d.id === event.sumberId);
+        if (sumber) {
+          fields.push(item("Jenis Kegiatan", sumber.jenis || "-"));
+          if (sumber.kapasitas)
+            fields.push(item("Kapasitas", sumber.kapasitas + " orang"));
+        }
+        break;
+      case "Per Program":
+        sumber = (programData || []).find((d) => d.id === event.sumberId);
+        if (sumber) {
+          fields.push(item("Program", sumber.program || "-"));
+          fields.push(item("Kegiatan", sumber.kegiatan || "-"));
+        }
+        break;
+    }
+  }
+
+  // Info umum yang selalu relevan.
+  fields.push(item("Jenis Kegiatan", event.sumber || "Kegiatan"));
+
+  // Label kategori warna kegiatan.
+  const namaKategori = namaKategoriDariWarna(event.warna);
+  if (namaKategori) {
+    const isLight = ["#ffffff", "#fff", "#fdd835"].includes(
+      String(event.warna || "").toLowerCase(),
+    );
+    fields.push(
+      `<div class="event-detail-item event-detail-item-full">` +
+        `<span class="event-detail-label">Kategori Warna</span>` +
+        `<strong><span class="event-detail-cat-tag${isLight ? " is-light" : ""}">${esc(namaKategori)}</span></strong>` +
+        `</div>`,
+    );
+  }
+
+  extra.innerHTML = fields.join("");
+}
+
+// Nama kategori dari warna kegiatan (KKNT, AGROEDUTOURISM, dst).
+function namaKategoriDariWarna(warna) {
+  const target = warnaHexValid(warna) ? warna.toLowerCase() : null;
+  if (!target) return null;
+  const norm = (h) => {
+    let s = String(h).toLowerCase();
+    if (s.length === 4)
+      s = "#" + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+    return s;
+  };
+  const t = norm(target);
+  for (const kat of masterKategori || []) {
+    if (norm(kat.color) === t) return kat.key;
+  }
+  return null;
 }
 
 // ---- Aksi Edit/Hapus dari modal Detail Event ----

@@ -1403,11 +1403,18 @@ tbody tr:hover {
 .event-detail-modal {
   max-width: 560px;
   padding: 26px;
-  border-top: 5px solid #1a237e;
+  border-top: 5px solid var(--event-color, #1a237e);
 }
 
 .event-detail-modal .modal-header {
   margin-bottom: 18px;
+  border-bottom: 2px solid #eef1f7;
+  padding-bottom: 14px;
+}
+
+/* Garis aksen di samping judul "Detail Event" mengikuti warna label kegiatan. */
+.event-detail-modal .modal-header h3::before {
+  background: var(--event-color, #1a237e);
 }
 
 .event-detail-heading {
@@ -1423,7 +1430,7 @@ tbody tr:hover {
   flex: 0 0 42px;
   place-items: center;
   border-radius: 11px;
-  background: #1a237e;
+  background: var(--event-color, #1a237e);
   box-shadow: 0 7px 16px rgba(26, 35, 126, 0.22);
   color: #fff;
   font-size: 19px;
@@ -1488,6 +1495,41 @@ tbody tr:hover {
 
 .event-detail-item-full {
   grid-column: 1 / -1;
+}
+
+/* Baris field tambahan sesuai jenis kegiatan (Instansi, Jumlah, Tujuan, dll) */
+.event-detail-extra {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.event-detail-extra:empty {
+  display: none;
+}
+.event-detail-extra .event-detail-item {
+  min-width: 0;
+}
+.event-detail-extra .event-detail-item-full {
+  grid-column: 1 / -1;
+}
+
+/* Label kecil warna kategori kegiatan di header detail */
+.event-detail-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: var(--event-color, #5c6bc0);
+}
+.event-detail-cat-tag.is-light {
+  color: #1f2430;
 }
 
 #laporanPrintHeader {
@@ -2193,7 +2235,7 @@ tbody tr:hover {
   width: 5px;
   height: 22px;
   border-radius: 3px;
-  background: #ffca28;
+  background: var(--event-color, #ffca28);
   display: inline-block;
 }
 .modal-content .modal-header .modal-close {
@@ -2226,6 +2268,19 @@ tbody tr:hover {
 .event-detail-modal.modal-content .modal-header h3,
 .app-dialog .modal-header h3 {
   color: #1a237e;
+}
+
+/* Tombol close pada modal berheader putih harus gelap agar terlihat
+   (tanpa ini, ikon × ikut jadi putih dan tidak tampak). */
+.event-detail-modal.modal-content .modal-header .modal-close,
+.app-dialog .modal-header .modal-close,
+.modal-content.panduan .modal-header .modal-close {
+  color: #5f6b8a;
+}
+.event-detail-modal.modal-content .modal-header .modal-close:hover,
+.app-dialog .modal-header .modal-close:hover {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
 }
 
 /* Label field: beri ikon titik warna & huruf kapital halus */
