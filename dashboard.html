@@ -266,27 +266,6 @@
               </div>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="calendar-hint">
-              <span class="calendar-hint-icon" aria-hidden="true">💡</span>
-              <div class="calendar-hint-text">
-                <strong>Ingin menambah kegiatan ke kalender?</strong>
-                <span
-                  >Klik tanggal di kalender hanya untuk melihat detail. Untuk
-                  <b>menambah, mengubah, atau menghapus</b> kegiatan, buka menu
-                  <b>Jadwal Harian</b> lalu tekan tombol <b>+ Tambah</b>.</span
-                >
-              </div>
-              <button
-                type="button"
-                class="calendar-hint-btn"
-                onclick="
-                  switchMenu('jadwal');
-                  return false;
-                "
-              >
-                ➜ Buka Jadwal Harian
-              </button>
-            </div>
           </div>
 
           <div class="card event-list-card">
@@ -1001,6 +980,27 @@
             <button id="nextMonthFull">▶</button>
           </div>
           <div class="calendar-grid-full" id="calendarGridFull"></div>
+          <div class="calendar-hint">
+            <span class="calendar-hint-icon" aria-hidden="true">💡</span>
+            <div class="calendar-hint-text">
+              <strong>Ingin menambah kegiatan ke kalender?</strong>
+              <span
+                >Klik tanggal di kalender hanya untuk melihat detail. Untuk
+                <b>menambah, mengubah, atau menghapus</b> kegiatan, buka menu
+                <b>Jadwal Harian</b> lalu tekan tombol <b>+ Tambah</b>.</span
+              >
+            </div>
+            <button
+              type="button"
+              class="calendar-hint-btn"
+              onclick="
+                switchMenu('jadwal');
+                return false;
+              "
+            >
+              ➜ Buka Jadwal Harian
+            </button>
+          </div>
           <section class="legend-section">
             <div class="section-title">🎨 Keterangan Kegiatan</div>
             <div class="legend-groups">
