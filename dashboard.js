@@ -21,6 +21,35 @@ let masterInstansi = [
 ];
 
 // ============================================
+// PIC YANG TIDAK DIPAKAI (dibuang otomatis)
+// ============================================
+// "Nurma" dan "Fathiya" dihapus dari pilihan PIC. Karena daftar master PIC
+// bisa tersimpan di localStorage maupun Firestore dari sesi sebelumnya, kita
+// saring ulang setiap kali data dimuat agar keduanya benar-benar hilang.
+const PIC_DIBLOKIR = ["nurma", "fathiya", "fathia", "fatiya"];
+
+function bersihkanMasterPic() {
+  if (!Array.isArray(masterPic)) {
+    masterPic = [];
+    return false;
+  }
+  const sebelum = masterPic.length;
+  masterPic = masterPic.filter((nama) => {
+    const n = String(nama || "").trim().toLowerCase();
+    if (!n) return false;
+    // Buang jika nama sama ATAU hanya berisi salah satu nama yang diblokir.
+    return !PIC_DIBLOKIR.some((blokir) => n === blokir || n.startsWith(blokir));
+  });
+  const berubah = masterPic.length !== sebelum;
+  if (berubah) {
+    try {
+      localStorage.setItem("masterPic", JSON.stringify(masterPic));
+    } catch (_) {}
+  }
+  return berubah;
+}
+
+// ============================================
 // DATA JADWAL (4 Jenis)
 // ============================================
 
@@ -610,6 +639,7 @@ window.terapkanDataRealtimeAdmin = function (remoteData) {
   masterTempat = remoteData.masterTempat || masterTempat;
   masterPic = remoteData.masterPic || masterPic;
   masterInstansi = remoteData.masterInstansi || masterInstansi;
+  bersihkanMasterPic();
   kunjunganData = remoteData.kunjunganData || [];
   ruangData = remoteData.ruangData || [];
   balaiData = remoteData.balaiData || [];
@@ -681,6 +711,7 @@ function muatSemuaData() {
     if (savedTempat) masterTempat = JSON.parse(savedTempat);
     if (savedPic) masterPic = JSON.parse(savedPic);
     if (savedInstansi) masterInstansi = JSON.parse(savedInstansi);
+    bersihkanMasterPic();
     if (savedKunjungan) kunjunganData = JSON.parse(savedKunjungan);
     if (savedRuang) ruangData = JSON.parse(savedRuang);
     if (savedBalai) balaiData = JSON.parse(savedBalai);
@@ -1060,8 +1091,6 @@ function updateDropdowns() {
       select.value = currentVal;
     }
   });
-  // Segarkan saran person pada form kegiatan (mengikuti master PIC).
-  if (typeof updatePersonSuggestions === "function") updatePersonSuggestions();
 }
 
 // ============================================
@@ -2300,8 +2329,8 @@ function buatPersonRow(value) {
   row.innerHTML =
     `<span class="person-row-icon" aria-hidden="true">` +
     `<i class="fa-solid fa-user"></i></span>` +
-    `<input type="text" class="person-row-input" list="personSuggestList" ` +
-    `placeholder="Nama person" value="${safe}" />` +
+    `<input type="text" class="person-row-input" ` +
+    `placeholder="Nama person" value="${safe}" autocomplete="off" />` +
     `<button type="button" class="person-row-remove" title="Hapus person" ` +
     `onclick="hapusPersonRow(this)">` +
     `<i class="fa-solid fa-xmark"></i></button>`;
@@ -2338,21 +2367,6 @@ function hapusPersonRow(btn) {
   const row = btn.closest(".person-row");
   if (row) row.remove();
   updatePersonCounter();
-}
-
-// Isi datalist saran person dari masterPic bila tersedia.
-function updatePersonSuggestions() {
-  let list = document.getElementById("personSuggestList");
-  if (!list) {
-    list = document.createElement("datalist");
-    list.id = "personSuggestList";
-    document.body.appendChild(list);
-  }
-  try {
-    list.innerHTML = (masterPic || [])
-      .map((p) => `<option value="${String(p).replace(/"/g, "&quot;")}"></option>`)
-      .join("");
-  } catch (_) {}
 }
 
 window.tambahPersonRow = tambahPersonRow;
@@ -3973,6 +3987,10 @@ function resetDataFromUser() {
 document.addEventListener("DOMContentLoaded", function () {
   muatSemuaData();
 
+  // Pastikan PIC yang tidak dipakai (mis. "Nurma"/"Fathiya") hilang dari
+  // data lama; simpan ulang hanya bila memang ada yang dibuang.
+  if (bersihkanMasterPic()) simpanSemuaData();
+
   // CEK APAKAH MASTER DATA MASIH DEFAULT LAMA
   if (
     masterRuangan.includes("R. Meeting 1") ||
@@ -4035,9 +4053,6 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("📋 Master Tempat:", masterTempat.length, "data");
   console.log("📋 Master PIC:", masterPic.length, "data");
   console.log("📋 Master Instansi:", masterInstansi.length, "data");
-
-  // Siapkan saran person pada form kegiatan.
-  if (typeof updatePersonSuggestions === "function") updatePersonSuggestions();
 
   // Tutup modal quick-add saat area gelap di luar kotak diklik.
   const quickAddModal = document.getElementById("quickAddModal");

@@ -2533,18 +2533,12 @@ tbody tr:hover {
   padding-bottom: 4px;
 }
 /* ============================================================
-   TAMBAHAN: FORM PENANDA WAJIB/OPSIONAL & CATATAN
+   TAMBAHAN: FORM PENANDA WAJIB & CATATAN
    ============================================================ */
 .req-mark {
   color: #e53935;
   font-weight: 800;
   margin-left: 2px;
-}
-.opt-mark {
-  color: #98a2b3;
-  font-weight: 500;
-  font-size: 11.5px;
-  font-style: italic;
 }
 .form-note {
   display: flex;
