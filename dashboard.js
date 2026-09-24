@@ -1060,6 +1060,8 @@ function updateDropdowns() {
       select.value = currentVal;
     }
   });
+  // Segarkan saran person pada form kegiatan (mengikuti master PIC).
+  if (typeof updatePersonSuggestions === "function") updatePersonSuggestions();
 }
 
 // ============================================
@@ -1355,61 +1357,119 @@ function hapusJadwalFromModal() {
 
 // ============================================
 // FUNGSI TAMBAH MASTER CEPAT
+// Menggunakan modal berdesain (#quickAddModal) alih-alih
+// window.prompt() bawaan browser yang tampilannya "basic".
 // ============================================
-function tambahMasterRuanganCepat() {
-  const val = prompt("Masukkan nama ruangan baru:");
-  if (!val) return;
-  if (masterRuangan.includes(val)) {
-    alert("Ruangan sudah ada!");
+
+// Konfigurasi tiap jenis data master yang bisa ditambah cepat.
+const QUICK_ADD_CONFIG = {
+  ruangan: {
+    title: "Tambah Ruangan",
+    desc: "Masukkan nama ruangan baru. Data ini langsung tersedia di dropdown.",
+    placeholder: "Contoh: R. Meeting",
+    icon: "fa-solid fa-door-open",
+    list: () => masterRuangan,
+    push: (val) => masterRuangan.push(val),
+  },
+  tempat: {
+    title: "Tambah Tempat",
+    desc: "Masukkan nama tempat / lokasi baru.",
+    placeholder: "Contoh: STP",
+    icon: "fa-solid fa-location-dot",
+    list: () => masterTempat,
+    push: (val) => masterTempat.push(val),
+  },
+  pic: {
+    title: "Tambah PIC",
+    desc: "Masukkan nama PIC baru.",
+    placeholder: "Contoh: Novi Putri Jelita S.Pi",
+    icon: "fa-solid fa-user-tie",
+    list: () => masterPic,
+    push: (val) => masterPic.push(val),
+  },
+  instansi: {
+    title: "Tambah Instansi",
+    desc: "Masukkan nama instansi / kategori pengunjung baru.",
+    placeholder: "Contoh: Instansi Pemerintah",
+    icon: "fa-solid fa-building-columns",
+    list: () => masterInstansi,
+    push: (val) => masterInstansi.push(val),
+  },
+};
+
+let currentQuickAddType = null;
+
+function openQuickAdd(type) {
+  const cfg = QUICK_ADD_CONFIG[type];
+  if (!cfg) return;
+  currentQuickAddType = type;
+  const modal = document.getElementById("quickAddModal");
+  if (!modal) return;
+  document.getElementById("quickAddTitle").textContent = cfg.title;
+  document.getElementById("quickAddDesc").textContent = cfg.desc;
+  const iconEl = document.getElementById("quickAddIcon");
+  if (iconEl) iconEl.innerHTML = `<i class="${cfg.icon}"></i>`;
+  const input = document.getElementById("quickAddInput");
+  if (input) {
+    input.value = "";
+    input.placeholder = cfg.placeholder || "Masukkan nama...";
+  }
+  const errorEl = document.getElementById("quickAddError");
+  if (errorEl) errorEl.textContent = "";
+  modal.classList.add("active");
+  // Fokus otomatis ke input agar pengguna bisa langsung mengetik.
+  setTimeout(() => input && input.focus(), 60);
+}
+
+function closeQuickAdd() {
+  const modal = document.getElementById("quickAddModal");
+  if (modal) modal.classList.remove("active");
+  currentQuickAddType = null;
+}
+
+function submitQuickAdd() {
+  const cfg = QUICK_ADD_CONFIG[currentQuickAddType];
+  if (!cfg) return;
+  const input = document.getElementById("quickAddInput");
+  const errorEl = document.getElementById("quickAddError");
+  const showError = (msg) => {
+    if (errorEl) errorEl.textContent = msg;
+  };
+  const val = input ? input.value.trim() : "";
+  if (!val) {
+    showError("Nama tidak boleh kosong.");
+    if (input) input.focus();
     return;
   }
-  masterRuangan.push(val);
+  if (cfg.list().some((item) => item.toLowerCase() === val.toLowerCase())) {
+    showError(`"${val}" sudah ada dalam daftar.`);
+    if (input) input.focus();
+    return;
+  }
+  cfg.push(val);
   updateDropdowns();
   renderMasterData();
   simpanSemuaData();
-  alert("✅ Ruangan berhasil ditambahkan!");
+  closeQuickAdd();
+  if (typeof showAppAlert === "function") {
+    showAppAlert(`✅ ${val} berhasil ditambahkan!`);
+  }
+}
+
+function tambahMasterRuanganCepat() {
+  openQuickAdd("ruangan");
 }
 
 function tambahMasterTempatCepat() {
-  const val = prompt("Masukkan nama tempat baru:");
-  if (!val) return;
-  if (masterTempat.includes(val)) {
-    alert("Tempat sudah ada!");
-    return;
-  }
-  masterTempat.push(val);
-  updateDropdowns();
-  renderMasterData();
-  simpanSemuaData();
-  alert("✅ Tempat berhasil ditambahkan!");
+  openQuickAdd("tempat");
 }
 
 function tambahMasterPicCepat() {
-  const val = prompt("Masukkan nama PIC baru:");
-  if (!val) return;
-  if (masterPic.includes(val)) {
-    alert("PIC sudah ada!");
-    return;
-  }
-  masterPic.push(val);
-  updateDropdowns();
-  renderMasterData();
-  simpanSemuaData();
-  alert("✅ PIC berhasil ditambahkan!");
+  openQuickAdd("pic");
 }
 
 function tambahMasterInstansiCepat() {
-  const val = prompt("Masukkan nama instansi baru:");
-  if (!val) return;
-  if (masterInstansi.includes(val)) {
-    alert("Instansi sudah ada!");
-    return;
-  }
-  masterInstansi.push(val);
-  updateDropdowns();
-  renderMasterData();
-  simpanSemuaData();
-  alert("✅ Instansi berhasil ditambahkan!");
+  openQuickAdd("instansi");
 }
 
 // ============================================
@@ -2023,6 +2083,13 @@ function tampilkanDetailEvent(id) {
   document.getElementById("detailEventTempat").textContent =
     event.tempat || "-";
   document.getElementById("detailEventPic").textContent = event.pic || "-";
+  const personEl = document.getElementById("detailEventPerson");
+  if (personEl) {
+    const persons = Array.isArray(event.person)
+      ? event.person.filter(Boolean)
+      : [];
+    personEl.textContent = persons.length ? persons.join(", ") : "-";
+  }
 
   // Warna aksen modal mengikuti warna label kegiatan di kalender.
   const warna = warnaHexValid(event.warna) ? event.warna : "#1a237e";
@@ -2194,6 +2261,104 @@ function setSelectWarna(selectId, warna) {
     window.perbaruiPreviewWarna();
 }
 
+// ============================================
+// PERSON TAMBAHAN PADA EVENT (MAKS. 5 ORANG)
+// ============================================
+const MAX_PERSON = 5;
+
+// Ambil daftar person dari input yang terlihat saat ini.
+function getPersonValues() {
+  const rows = document.querySelectorAll("#eventPersonRows .person-row-input");
+  return Array.from(rows)
+    .map((i) => i.value.trim())
+    .filter(Boolean);
+}
+
+function updatePersonCounter() {
+  const count = document.querySelectorAll(
+    "#eventPersonRows .person-row-input",
+  ).length;
+  const counter = document.getElementById("personCounter");
+  if (counter) counter.textContent = `${count}/${MAX_PERSON}`;
+  const btn = document.getElementById("btnAddPerson");
+  if (btn) {
+    const full = count >= MAX_PERSON;
+    btn.disabled = full;
+    btn.classList.toggle("is-disabled", full);
+  }
+}
+
+// Buat satu baris input person, lengkap dengan tombol hapus.
+function buatPersonRow(value) {
+  const row = document.createElement("div");
+  row.className = "person-row";
+  const safe = String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  row.innerHTML =
+    `<span class="person-row-icon" aria-hidden="true">` +
+    `<i class="fa-solid fa-user"></i></span>` +
+    `<input type="text" class="person-row-input" list="personSuggestList" ` +
+    `placeholder="Nama person" value="${safe}" />` +
+    `<button type="button" class="person-row-remove" title="Hapus person" ` +
+    `onclick="hapusPersonRow(this)">` +
+    `<i class="fa-solid fa-xmark"></i></button>`;
+  return row;
+}
+
+// Render ulang seluruh baris person dari array nilai.
+function renderPersonRows(values) {
+  const container = document.getElementById("eventPersonRows");
+  if (!container) return;
+  container.innerHTML = "";
+  const list = Array.isArray(values) ? values.filter(Boolean).slice(0, MAX_PERSON) : [];
+  list.forEach((val) => container.appendChild(buatPersonRow(val)));
+  updatePersonCounter();
+}
+
+// Tambah satu baris person (dipanggil tombol "+ Tambah Person").
+function tambahPersonRow() {
+  const container = document.getElementById("eventPersonRows");
+  if (!container) return;
+  if (container.children.length >= MAX_PERSON) {
+    if (typeof showAppAlert === "function")
+      showAppAlert(`Maksimal ${MAX_PERSON} person saja ya.`);
+    return;
+  }
+  const row = buatPersonRow("");
+  container.appendChild(row);
+  updatePersonCounter();
+  const input = row.querySelector("input");
+  if (input) input.focus();
+}
+
+function hapusPersonRow(btn) {
+  const row = btn.closest(".person-row");
+  if (row) row.remove();
+  updatePersonCounter();
+}
+
+// Isi datalist saran person dari masterPic bila tersedia.
+function updatePersonSuggestions() {
+  let list = document.getElementById("personSuggestList");
+  if (!list) {
+    list = document.createElement("datalist");
+    list.id = "personSuggestList";
+    document.body.appendChild(list);
+  }
+  try {
+    list.innerHTML = (masterPic || [])
+      .map((p) => `<option value="${String(p).replace(/"/g, "&quot;")}"></option>`)
+      .join("");
+  } catch (_) {}
+}
+
+window.tambahPersonRow = tambahPersonRow;
+window.hapusPersonRow = hapusPersonRow;
+window.renderPersonRows = renderPersonRows;
+
 function tambahEvent() {
   document.getElementById("modalEventTitle").textContent = "Tambah Event";
   document.getElementById("eventId").value = "";
@@ -2208,6 +2373,7 @@ function tambahEvent() {
   document.getElementById("eventRuangan").value = "";
   document.getElementById("eventTempat").value = "";
   document.getElementById("eventPic").value = "";
+  renderPersonRows([]);
   document.getElementById("btnDeleteEvent").style.display = "none";
   updateDropdowns();
   if (typeof window.perbaruiWarnaFormEvent === "function")
@@ -2242,6 +2408,7 @@ function editEvent(id) {
   document.getElementById("eventRuangan").value = event.ruangan;
   document.getElementById("eventTempat").value = event.tempat;
   document.getElementById("eventPic").value = event.pic;
+  renderPersonRows(event.person || []);
   setSelectWarna("eventWarna", event.warna);
   document.getElementById("btnDeleteEvent").style.display = "inline-block";
   updateDropdowns();
@@ -2253,13 +2420,20 @@ function editEvent(id) {
 function saveEvent() {
   const id = document.getElementById("eventId").value;
   const tanggalMulai = document.getElementById("eventTanggalMulai").value;
-  const tanggalSelesai = document.getElementById("eventTanggalSelesai").value;
+  // Tanggal selesai opsional: bila kosong dianggap sama dengan tanggal mulai.
+  const tanggalSelesai =
+    document.getElementById("eventTanggalSelesai").value || tanggalMulai;
   const nama = document.getElementById("eventNama").value.trim();
   const waktuMulai = document.getElementById("eventWaktuMulai").value;
   const waktuSelesai = document.getElementById("eventWaktuSelesai").value;
 
-  if (!tanggalMulai || !tanggalSelesai || !nama) {
-    alert("Tanggal mulai, tanggal selesai, dan nama kegiatan wajib diisi.");
+  // Hanya Nama Kegiatan & Tanggal Mulai yang wajib diisi.
+  if (!nama) {
+    alert("Nama kegiatan wajib diisi.");
+    return;
+  }
+  if (!tanggalMulai) {
+    alert("Tanggal mulai wajib diisi.");
     return;
   }
   if (tanggalSelesai < tanggalMulai) {
@@ -2270,6 +2444,7 @@ function saveEvent() {
   const waktu =
     waktuMulai && waktuSelesai ? `${waktuMulai} - ${waktuSelesai}` : "";
   const startDate = new Date(`${tanggalMulai}T00:00:00`);
+  const person = getPersonValues().slice(0, MAX_PERSON);
   const event = {
     id: id ? parseInt(id) : nextEventId++,
     tanggalMulai,
@@ -2282,6 +2457,7 @@ function saveEvent() {
     ruangan: document.getElementById("eventRuangan").value,
     tempat: document.getElementById("eventTempat").value,
     pic: document.getElementById("eventPic").value,
+    person,
     // Warna DIPILIH MANUAL oleh pengguna (tidak lagi otomatis dari nama).
     warna: document.getElementById("eventWarna").value || "#5c6bc0",
     dariJadwal: false,
@@ -3859,6 +4035,17 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("📋 Master Tempat:", masterTempat.length, "data");
   console.log("📋 Master PIC:", masterPic.length, "data");
   console.log("📋 Master Instansi:", masterInstansi.length, "data");
+
+  // Siapkan saran person pada form kegiatan.
+  if (typeof updatePersonSuggestions === "function") updatePersonSuggestions();
+
+  // Tutup modal quick-add saat area gelap di luar kotak diklik.
+  const quickAddModal = document.getElementById("quickAddModal");
+  if (quickAddModal) {
+    quickAddModal.addEventListener("click", (e) => {
+      if (e.target === quickAddModal) closeQuickAdd();
+    });
+  }
 });
 
 console.log("💡 Untuk reset master data, ketik: resetMasterData()");

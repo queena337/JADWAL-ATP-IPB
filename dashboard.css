@@ -2532,3 +2532,383 @@ tbody tr:hover {
 #eventModal form {
   padding-bottom: 4px;
 }
+/* ============================================================
+   TAMBAHAN: FORM PENANDA WAJIB/OPSIONAL & CATATAN
+   ============================================================ */
+.req-mark {
+  color: #e53935;
+  font-weight: 800;
+  margin-left: 2px;
+}
+.opt-mark {
+  color: #98a2b3;
+  font-weight: 500;
+  font-size: 11.5px;
+  font-style: italic;
+}
+.form-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background: #eef3ff;
+  border: 1px solid #d6e0ff;
+  border-left: 4px solid #3949ab;
+  color: #33406b;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.form-note i {
+  color: #3949ab;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.form-note b {
+  color: #1a237e;
+}
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: #7b8498;
+}
+/* Grid dua kolom untuk field yang kini pakai wrapper .form-field */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.form-field .sub-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* ============================================================
+   PERSON TAMBAHAN (MAKS. 5 ORANG) PADA MODAL KEGIATAN
+   ============================================================ */
+.person-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.person-rows:empty {
+  display: none;
+}
+.person-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.2s ease;
+}
+.person-row-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: #eef1fb;
+  color: #3949ab;
+  font-size: 13px;
+}
+.person-row-input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1.5px solid #dfe3ec;
+  border-radius: 10px;
+  background: #fbfcfe;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.person-row-input:hover {
+  border-color: #c3cbe0;
+}
+.person-row-input:focus {
+  background: #fff;
+  border-color: #3949ab;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.12);
+}
+.person-row-remove {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9px;
+  background: #fdecea;
+  color: #d64545;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.18s, transform 0.18s;
+}
+.person-row-remove:hover {
+  background: #f44336;
+  color: #fff;
+  transform: scale(1.05);
+}
+.btn-person-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1.5px dashed #b9c1e6;
+  background: #eef1fb;
+  color: #1a237e;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.18s ease;
+}
+.btn-person-add:hover:not(.is-disabled) {
+  background: #1a237e;
+  color: #fff;
+  border-style: solid;
+  border-color: #1a237e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.25);
+}
+.btn-person-add.is-disabled,
+.btn-person-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.person-counter {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #d9e0f7;
+  color: #1a237e;
+}
+.btn-person-add:hover:not(.is-disabled) .person-counter {
+  background: #ffca28;
+  color: #1a237e;
+}
+
+/* ============================================================
+   MODAL QUICK-ADD MASTER (pengganti prompt bawaan browser)
+   ============================================================ */
+.quick-add-content {
+  max-width: 440px;
+  padding: 0;
+  overflow: hidden;
+}
+.quick-add-content .modal-header {
+  margin: 0;
+  padding: 18px 22px;
+  border-bottom: none;
+}
+.quick-add-body {
+  padding: 4px 22px 6px;
+}
+.quick-add-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #fff;
+  font-size: 22px;
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.28);
+}
+.quick-add-desc {
+  margin-bottom: 16px;
+  color: #59657a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.quick-add-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+.quick-add-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #dfe3ec;
+  border-radius: 10px;
+  background: #fbfcfe;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.quick-add-input:hover {
+  border-color: #c3cbe0;
+}
+.quick-add-input:focus {
+  background: #fff;
+  border-color: #3949ab;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.12);
+}
+.quick-add-error {
+  min-height: 18px;
+  margin-top: 8px;
+  color: #d64545;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.quick-add-actions {
+  display: flex;
+  gap: 10px;
+  padding: 18px 22px 22px;
+  margin-top: 6px;
+  border-top: 1px dashed #e3e8f3;
+}
+.quick-add-cancel,
+.quick-add-submit {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.quick-add-cancel {
+  background: #eef1f7;
+  color: #4a5570;
+}
+.quick-add-cancel:hover {
+  background: #e2e6f0;
+}
+.quick-add-submit {
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.25);
+}
+.quick-add-submit:hover {
+  background: linear-gradient(135deg, #232f8f, #4a5bc4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(26, 35, 126, 0.35);
+}
+
+/* ============================================================
+   MASTER DATA: baris input + tombol yang lebih rapi
+   ============================================================ */
+.master-add-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.master-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1.5px solid #dfe3ec;
+  border-radius: 10px;
+  background: #fbfcfe;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.master-add-input:hover {
+  border-color: #c3cbe0;
+}
+.master-add-input:focus {
+  background: #fff;
+  border-color: #3949ab;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.12);
+}
+.master-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.22);
+  transition: all 0.18s ease;
+}
+.master-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 20px rgba(26, 35, 126, 0.32);
+}
+
+/* ============================================================
+   RESPONSIF: TAMBAHAN UNTUK FORM & PERSON
+   ============================================================ */
+@media (max-width: 768px) {
+  .form-note {
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Field dua kolom menjadi satu kolom penuh di layar kecil. */
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .master-add-row {
+    flex-direction: column;
+  }
+  .master-add-btn {
+    justify-content: center;
+    width: 100%;
+  }
+  .quick-add-actions {
+    flex-direction: column-reverse;
+  }
+  .btn-person-add {
+    width: 100%;
+    justify-content: center;
+  }
+  .person-row-input {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .person-row-remove {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 400px) {
+  .quick-add-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+  .quick-add-body {
+    padding: 4px 16px 6px;
+  }
+  .quick-add-actions {
+    padding: 14px 16px 18px;
+  }
+  .quick-add-content .modal-header {
+    padding: 14px 16px;
+  }
+}

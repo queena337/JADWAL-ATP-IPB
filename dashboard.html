@@ -553,6 +553,13 @@
           <form id="jadwalForm">
             <input type="hidden" id="jadwalId" />
             <input type="hidden" id="jadwalJenis" />
+            <div class="form-note">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              <span
+                >Isi field yang diperlukan saja. Field bertanda
+                <b class="req-mark">*</b> wajib diisi, sisanya opsional.</span
+              >
+            </div>
             <div class="form-group">
               <label>Jenis Jadwal</label>
               <select id="formJenis" onchange="ubahFormJadwal()" required>
@@ -566,7 +573,9 @@
             <!-- Field Kunjungan -->
             <div id="fieldKunjungan">
               <div class="form-group">
-                <label>Nama Tamu / Kegiatan</label>
+                <label
+                  >Nama Tamu / Kegiatan <span class="req-mark">*</span></label
+                >
                 <input
                   type="text"
                   id="fNamaTamu"
@@ -574,7 +583,7 @@
                 />
               </div>
               <div class="form-group">
-                <label>Instansi</label>
+                <label>Instansi <span class="opt-mark">(opsional)</span></label>
                 <select id="fInstansi">
                   <option value="">Pilih Instansi</option>
                 </select>
@@ -588,18 +597,20 @@
                 </button>
               </div>
               <div class="form-group">
-                <label>Jumlah Pengunjung</label>
+                <label
+                  >Jumlah Pengunjung
+                  <span class="opt-mark">(opsional)</span></label
+                >
                 <input
                   type="number"
                   id="fJumlahPengunjung"
                   min="0"
                   step="1"
                   placeholder="Masukkan jumlah pengunjung"
-                  required
                 />
               </div>
               <div class="form-group">
-                <label>Tujuan</label>
+                <label>Tujuan <span class="opt-mark">(opsional)</span></label>
                 <input
                   type="text"
                   id="fTujuan"
@@ -611,7 +622,7 @@
             <!-- Field Ruang -->
             <div id="fieldRuang" style="display: none">
               <div class="form-group">
-                <label>Nama Kegiatan</label>
+                <label>Nama Kegiatan <span class="req-mark">*</span></label>
                 <input
                   type="text"
                   id="fKegiatanRuang"
@@ -619,7 +630,9 @@
                 />
               </div>
               <div class="form-group">
-                <label>Kapasitas</label>
+                <label
+                  >Kapasitas <span class="opt-mark">(opsional)</span></label
+                >
                 <input
                   type="number"
                   id="fKapasitas"
@@ -631,7 +644,7 @@
             <!-- Field Balai -->
             <div id="fieldBalai" style="display: none">
               <div class="form-group">
-                <label>Nama Kegiatan</label>
+                <label>Nama Kegiatan <span class="req-mark">*</span></label>
                 <input
                   type="text"
                   id="fKegiatanBalai"
@@ -639,7 +652,10 @@
                 />
               </div>
               <div class="form-group">
-                <label>Jenis Kegiatan</label>
+                <label
+                  >Jenis Kegiatan
+                  <span class="opt-mark">(opsional)</span></label
+                >
                 <input
                   type="text"
                   id="fJenisKegiatan"
@@ -651,7 +667,7 @@
             <!-- Field Program -->
             <div id="fieldProgram" style="display: none">
               <div class="form-group">
-                <label>Nama Program</label>
+                <label>Nama Program <span class="req-mark">*</span></label>
                 <input
                   type="text"
                   id="fNamaProgram"
@@ -659,7 +675,7 @@
                 />
               </div>
               <div class="form-group">
-                <label>Kegiatan</label>
+                <label>Kegiatan <span class="opt-mark">(opsional)</span></label>
                 <input
                   type="text"
                   id="fKegiatanProgram"
@@ -671,57 +687,38 @@
             <!-- Field Tanggal -->
             <div class="form-group">
               <label>Rentang Tanggal Kegiatan</label>
-              <div
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-              >
-                <div>
-                  <label for="fTanggalMulai" style="font-size: 12px"
-                    >Tanggal Mulai</label
+              <div class="form-grid-2">
+                <div class="form-field">
+                  <label for="fTanggalMulai" class="sub-label"
+                    >Tanggal Mulai <span class="req-mark">*</span></label
                   >
                   <input type="date" id="fTanggalMulai" required />
                 </div>
-                <div>
-                  <label for="fTanggalSelesai" style="font-size: 12px"
-                    >Tanggal Selesai</label
+                <div class="form-field">
+                  <label for="fTanggalSelesai" class="sub-label"
+                    >Tanggal Selesai
+                    <span class="opt-mark">(opsional)</span></label
                   >
-                  <input type="date" id="fTanggalSelesai" required />
+                  <input type="date" id="fTanggalSelesai" />
                 </div>
               </div>
             </div>
 
             <!-- ===== WAKTU MANUAL ===== -->
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-            >
+            <div class="form-grid-2">
               <div class="form-group">
-                <label>⏰ Waktu Mulai</label>
-                <input
-                  type="time"
-                  id="fWaktuMulai"
-                  required
-                  style="
-                    padding: 10px 14px;
-                    border: 2px solid #e0e0e0;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    width: 100%;
-                  "
-                />
+                <label
+                  >⏰ Waktu Mulai
+                  <span class="opt-mark">(opsional)</span></label
+                >
+                <input type="time" id="fWaktuMulai" />
               </div>
               <div class="form-group">
-                <label>⏰ Waktu Selesai</label>
-                <input
-                  type="time"
-                  id="fWaktuSelesai"
-                  required
-                  style="
-                    padding: 10px 14px;
-                    border: 2px solid #e0e0e0;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    width: 100%;
-                  "
-                />
+                <label
+                  >⏰ Waktu Selesai
+                  <span class="opt-mark">(opsional)</span></label
+                >
+                <input type="time" id="fWaktuSelesai" />
               </div>
             </div>
 
@@ -771,8 +768,8 @@
             </div>
 
             <div class="form-group">
-              <label>Ruangan</label>
-              <select id="fRuangan" required>
+              <label>Ruangan <span class="opt-mark">(opsional)</span></label>
+              <select id="fRuangan">
                 <option value="">Pilih Ruangan</option>
               </select>
               <button
@@ -785,8 +782,10 @@
               </button>
             </div>
             <div class="form-group">
-              <label>Tempat / Lokasi</label>
-              <select id="fTempat" required>
+              <label
+                >Tempat / Lokasi <span class="opt-mark">(opsional)</span></label
+              >
+              <select id="fTempat">
                 <option value="">Pilih Tempat</option>
               </select>
               <button
@@ -799,8 +798,8 @@
               </button>
             </div>
             <div class="form-group">
-              <label>PIC</label>
-              <select id="fPic" required>
+              <label>PIC <span class="opt-mark">(opsional)</span></label>
+              <select id="fPic">
                 <option value="">Pilih PIC</option>
               </select>
               <button
@@ -862,20 +861,18 @@
           </div>
 
           <div id="master-ruangan" class="master-tab active">
-            <div style="display: flex; gap: 10px; margin-bottom: 12px">
+            <div class="master-add-row">
               <input
                 type="text"
                 id="inputRuangan"
+                class="master-add-input"
                 placeholder="Nama Ruangan"
-                style="
-                  flex: 1;
-                  padding: 8px 12px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                "
               />
-              <button class="btn-add" onclick="tambahMasterRuangan()">
-                + Tambah
+              <button
+                class="btn-add master-add-btn"
+                onclick="tambahMasterRuangan()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah
               </button>
             </div>
             <div
@@ -885,20 +882,18 @@
           </div>
 
           <div id="master-tempat" class="master-tab" style="display: none">
-            <div style="display: flex; gap: 10px; margin-bottom: 12px">
+            <div class="master-add-row">
               <input
                 type="text"
                 id="inputTempat"
+                class="master-add-input"
                 placeholder="Nama Tempat"
-                style="
-                  flex: 1;
-                  padding: 8px 12px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                "
               />
-              <button class="btn-add" onclick="tambahMasterTempat()">
-                + Tambah
+              <button
+                class="btn-add master-add-btn"
+                onclick="tambahMasterTempat()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah
               </button>
             </div>
             <div
@@ -908,20 +903,18 @@
           </div>
 
           <div id="master-pic" class="master-tab" style="display: none">
-            <div style="display: flex; gap: 10px; margin-bottom: 12px">
+            <div class="master-add-row">
               <input
                 type="text"
                 id="inputPic"
+                class="master-add-input"
                 placeholder="Nama PIC"
-                style="
-                  flex: 1;
-                  padding: 8px 12px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                "
               />
-              <button class="btn-add" onclick="tambahMasterPic()">
-                + Tambah
+              <button
+                class="btn-add master-add-btn"
+                onclick="tambahMasterPic()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah
               </button>
             </div>
             <div
@@ -931,26 +924,80 @@
           </div>
 
           <div id="master-instansi" class="master-tab" style="display: none">
-            <div style="display: flex; gap: 10px; margin-bottom: 12px">
+            <div class="master-add-row">
               <input
                 type="text"
                 id="inputInstansi"
+                class="master-add-input"
                 placeholder="Nama Instansi"
-                style="
-                  flex: 1;
-                  padding: 8px 12px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                "
               />
-              <button class="btn-add" onclick="tambahMasterInstansi()">
-                + Tambah
+              <button
+                class="btn-add master-add-btn"
+                onclick="tambahMasterInstansi()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah
               </button>
             </div>
             <div
               id="listInstansi"
               style="display: flex; flex-wrap: wrap; gap: 8px"
             ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- MODAL QUICK-ADD MASTER (Instansi/Ruangan/Tempat/PIC) -->
+      <!-- Menggantikan window.prompt() bawaan browser dengan   -->
+      <!-- dialog berdesain seragam aplikasi.                   -->
+      <!-- ========================================== -->
+      <div class="modal quick-add-modal" id="quickAddModal">
+        <div class="modal-content quick-add-content">
+          <div class="modal-header">
+            <h3 id="quickAddTitle">Tambah Data</h3>
+            <button class="modal-close" onclick="closeQuickAdd()">×</button>
+          </div>
+          <div class="quick-add-body">
+            <div class="quick-add-icon" id="quickAddIcon" aria-hidden="true">
+              <i class="fa-solid fa-plus"></i>
+            </div>
+            <p class="quick-add-desc" id="quickAddDesc">
+              Masukkan nama data baru di bawah ini.
+            </p>
+            <label class="quick-add-label" for="quickAddInput"
+              >Nama <span class="req-mark">*</span></label
+            >
+            <input
+              type="text"
+              id="quickAddInput"
+              class="quick-add-input"
+              placeholder="Masukkan nama..."
+              autocomplete="off"
+              onkeydown="
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  submitQuickAdd();
+                }
+              "
+            />
+            <p class="quick-add-error" id="quickAddError" role="alert"></p>
+          </div>
+          <div class="quick-add-actions">
+            <button
+              type="button"
+              class="quick-add-cancel"
+              onclick="closeQuickAdd()"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="quick-add-submit"
+              onclick="submitQuickAdd()"
+            >
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              Simpan
+            </button>
           </div>
         </div>
       </div>
@@ -1630,21 +1677,15 @@
         </div>
         <form id="eventForm">
           <input type="hidden" id="eventId" />
-          <div class="form-group">
-            <label>Rentang Tanggal Kegiatan</label>
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-            >
-              <input type="date" id="eventTanggalMulai" required />
-              <input type="date" id="eventTanggalSelesai" required />
-            </div>
-            <small style="color: #777"
-              >Kegiatan akan ditandai dari tanggal mulai sampai tanggal
-              selesai.</small
+          <div class="form-note">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <span
+              >Hanya <b>Nama Kegiatan</b> dan <b>Tanggal Mulai</b> yang wajib
+              diisi. Field lain boleh dikosongkan.</span
             >
           </div>
           <div class="form-group">
-            <label>Nama Kegiatan</label>
+            <label>Nama Kegiatan <span class="req-mark">*</span></label>
             <input
               type="text"
               id="eventNama"
@@ -1652,35 +1693,41 @@
               placeholder="Masukkan nama kegiatan"
             />
           </div>
+          <div class="form-group">
+            <label>Rentang Tanggal Kegiatan</label>
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="eventTanggalMulai" class="sub-label"
+                  >Tanggal Mulai <span class="req-mark">*</span></label
+                >
+                <input type="date" id="eventTanggalMulai" required />
+              </div>
+              <div class="form-field">
+                <label for="eventTanggalSelesai" class="sub-label"
+                  >Tanggal Selesai
+                  <span class="opt-mark">(opsional)</span></label
+                >
+                <input type="date" id="eventTanggalSelesai" />
+              </div>
+            </div>
+            <small class="form-hint"
+              >Kosongkan tanggal selesai bila kegiatan hanya satu hari.</small
+            >
+          </div>
           <!-- ===== WAKTU EVENT MANUAL ===== -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+          <div class="form-grid-2">
             <div class="form-group">
-              <label>⏰ Waktu Mulai</label>
-              <input
-                type="time"
-                id="eventWaktuMulai"
-                style="
-                  padding: 10px 14px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                  font-size: 14px;
-                  width: 100%;
-                "
-              />
+              <label
+                >⏰ Waktu Mulai <span class="opt-mark">(opsional)</span></label
+              >
+              <input type="time" id="eventWaktuMulai" />
             </div>
             <div class="form-group">
-              <label>⏰ Waktu Selesai</label>
-              <input
-                type="time"
-                id="eventWaktuSelesai"
-                style="
-                  padding: 10px 14px;
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                  font-size: 14px;
-                  width: 100%;
-                "
-              />
+              <label
+                >⏰ Waktu Selesai
+                <span class="opt-mark">(opsional)</span></label
+              >
+              <input type="time" id="eventWaktuSelesai" />
             </div>
           </div>
           <div class="form-group">
@@ -1728,22 +1775,66 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Ruangan</label>
+            <label>Ruangan <span class="opt-mark">(opsional)</span></label>
             <select id="eventRuangan">
               <option value="">Pilih Ruangan</option>
             </select>
+            <button
+              type="button"
+              class="btn-master-add"
+              data-label="Tambah Ruangan"
+              onclick="tambahMasterRuanganCepat()"
+            >
+              + Tambah Ruangan
+            </button>
           </div>
           <div class="form-group">
-            <label>Tempat</label>
+            <label>Tempat <span class="opt-mark">(opsional)</span></label>
             <select id="eventTempat">
               <option value="">Pilih Tempat</option>
             </select>
+            <button
+              type="button"
+              class="btn-master-add"
+              data-label="Tambah Tempat"
+              onclick="tambahMasterTempatCepat()"
+            >
+              + Tambah Tempat
+            </button>
           </div>
           <div class="form-group">
-            <label>PIC</label>
+            <label>PIC <span class="opt-mark">(opsional)</span></label>
             <select id="eventPic">
               <option value="">Pilih PIC</option>
             </select>
+            <button
+              type="button"
+              class="btn-master-add"
+              data-label="Tambah PIC"
+              onclick="tambahMasterPicCepat()"
+            >
+              + Tambah PIC
+            </button>
+          </div>
+
+          <!-- ===== PERSON TAMBAHAN (MAKS. 5 ORANG) ===== -->
+          <div class="form-group">
+            <label>
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+              Person Tambahan
+              <span class="opt-mark">(opsional)</span>
+            </label>
+            <div class="person-rows" id="eventPersonRows"></div>
+            <button
+              type="button"
+              class="btn-person-add"
+              id="btnAddPerson"
+              onclick="tambahPersonRow()"
+            >
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              Tambah Person
+              <span class="person-counter" id="personCounter">0/5</span>
+            </button>
           </div>
           <div
             class="form-group"
@@ -1815,6 +1906,10 @@
             <div class="event-detail-item event-detail-item-full">
               <span class="event-detail-label">PIC</span>
               <strong id="detailEventPic"></strong>
+            </div>
+            <div class="event-detail-item event-detail-item-full">
+              <span class="event-detail-label">Person Tambahan</span>
+              <strong id="detailEventPerson"></strong>
             </div>
           </div>
           <div class="event-detail-extra" id="detailEventExtra"></div>
@@ -2080,8 +2175,9 @@
           const jenis = document.getElementById("formJenis").value;
           const isEdit = id !== "";
           const tanggalMulai = document.getElementById("fTanggalMulai").value;
+          // Tanggal selesai opsional: bila kosong dianggap sama dengan tanggal mulai.
           const tanggalSelesai =
-            document.getElementById("fTanggalSelesai").value;
+            document.getElementById("fTanggalSelesai").value || tanggalMulai;
           const tanggal = tanggalMulai;
 
           // Ambil waktu manual
@@ -2102,16 +2198,10 @@
             return;
           }
 
-          if (
-            !tanggalMulai ||
-            !tanggalSelesai ||
-            !waktuMulai ||
-            !waktuSelesai ||
-            !ruangan ||
-            !tempat ||
-            !pic
-          ) {
-            alert("⚠️ Semua field wajib diisi!");
+          // Hanya Tanggal Mulai yang wajib. Field lain (waktu, ruangan,
+          // tempat, PIC, dsb) boleh dikosongkan.
+          if (!tanggalMulai) {
+            alert("⚠️ Tanggal Mulai wajib diisi!");
             return;
           }
 
@@ -2139,15 +2229,13 @@
               alert("⚠️ Nama Tamu wajib diisi!");
               return;
             }
-            if (isNaN(jumlah) || jumlah <= 0) {
-              alert("⚠️ Jumlah Pengunjung harus diisi dan lebih dari 0!");
-              return;
-            }
+            // Jumlah pengunjung opsional (dianggap 0 jika kosong).
+            const jumlahValid = isNaN(jumlah) || jumlah < 0 ? 0 : jumlah;
             dataBaru = {
               ...dataBaru,
               nama,
               instansi: instansi || "Umum",
-              jumlahPengunjung: jumlah,
+              jumlahPengunjung: jumlahValid,
               tujuan: tujuan || "-",
               id: isEdit ? parseInt(id) : nextKunjunganId++,
             };
@@ -2180,14 +2268,13 @@
               alert("⚠️ Nama Kegiatan wajib diisi!");
               return;
             }
-            if (isNaN(kapasitas) || kapasitas <= 0) {
-              alert("⚠️ Kapasitas harus diisi dan lebih dari 0!");
-              return;
-            }
+            // Kapasitas opsional (dianggap 0 jika kosong).
+            const kapasitasValid =
+              isNaN(kapasitas) || kapasitas < 0 ? 0 : kapasitas;
             dataBaru = {
               ...dataBaru,
               kegiatan,
-              kapasitas,
+              kapasitas: kapasitasValid,
               id: isEdit ? parseInt(id) : nextRuangId++,
             };
             if (isEdit) {
@@ -2213,14 +2300,14 @@
             const jenisKeg = document
               .getElementById("fJenisKegiatan")
               .value.trim();
-            if (!kegiatan || !jenisKeg) {
-              alert("⚠️ Nama Kegiatan dan Jenis Kegiatan wajib diisi!");
+            if (!kegiatan) {
+              alert("⚠️ Nama Kegiatan wajib diisi!");
               return;
             }
             dataBaru = {
               ...dataBaru,
               kegiatan,
-              jenis: jenisKeg,
+              jenis: jenisKeg || "-",
               id: isEdit ? parseInt(id) : nextBalaiId++,
             };
             if (isEdit) {
@@ -2246,14 +2333,14 @@
             const kegiatan = document
               .getElementById("fKegiatanProgram")
               .value.trim();
-            if (!program || !kegiatan) {
-              alert("⚠️ Nama Program dan Kegiatan wajib diisi!");
+            if (!program) {
+              alert("⚠️ Nama Program wajib diisi!");
               return;
             }
             dataBaru = {
               ...dataBaru,
               program,
-              kegiatan,
+              kegiatan: kegiatan || "-",
               lokasi: tempat,
               id: isEdit ? parseInt(id) : nextProgramId++,
             };
