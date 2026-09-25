@@ -23,10 +23,25 @@ let masterInstansi = [
 // ============================================
 // PIC YANG TIDAK DIPAKAI (dibuang otomatis)
 // ============================================
-// "Nurma" dan "Fathiya" dihapus dari pilihan PIC. Karena daftar master PIC
-// bisa tersimpan di localStorage maupun Firestore dari sesi sebelumnya, kita
-// saring ulang setiap kali data dimuat agar keduanya benar-benar hilang.
-const PIC_DIBLOKIR = ["nurma", "fathiya", "fathia", "fatiya"];
+// Nama PIC di bawah ini tidak boleh muncul lagi di pilihan PIC, termasuk
+// "Nurma", "Fathiya", dan "Fatthiya Azahra". Karena daftar master PIC bisa
+// tersimpan di localStorage maupun Firestore dari sesi sebelumnya, daftar ini
+// disaring ulang setiap kali data dimuat agar namanya benar-benar hilang.
+//
+// Pencocokan memakai KATA KUNCI INTI (bukan ejaan persis) supaya variasi
+// penulisan seperti "Fathiya", "Fatthiya", "Fathia", atau
+// "Fatthiya Azahra" semuanya ikut terbuang.
+const PIC_KATA_KUNCI_DIBLOKIR = ["nurma", "fath", "fatth", "fathiya", "fatthiya"];
+
+function namaPicDiblokir(nama) {
+  const n = String(nama || "")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!n) return true; // nama kosong juga dibuang
+  return PIC_KATA_KUNCI_DIBLOKIR.some((kata) => n.includes(kata));
+}
 
 function bersihkanMasterPic() {
   if (!Array.isArray(masterPic)) {
@@ -34,12 +49,7 @@ function bersihkanMasterPic() {
     return false;
   }
   const sebelum = masterPic.length;
-  masterPic = masterPic.filter((nama) => {
-    const n = String(nama || "").trim().toLowerCase();
-    if (!n) return false;
-    // Buang jika nama sama ATAU hanya berisi salah satu nama yang diblokir.
-    return !PIC_DIBLOKIR.some((blokir) => n === blokir || n.startsWith(blokir));
-  });
+  masterPic = masterPic.filter((nama) => !namaPicDiblokir(nama));
   const berubah = masterPic.length !== sebelum;
   if (berubah) {
     try {
