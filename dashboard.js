@@ -786,6 +786,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan || "-",
         tempat: item.instansi || "-",
         pic: item.pic,
+        person: item.person || [],
         warna: warnaTerpilih(
           "Kunjungan",
           item.id,
@@ -821,6 +822,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
+        person: item.person || [],
         warna: warnaTerpilih(
           "Pemakaian Ruang",
           item.id,
@@ -855,6 +857,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.ruangan,
         tempat: item.ruangan,
         pic: item.pic,
+        person: item.person || [],
         warna: warnaTerpilih(
           "Balai BRI",
           item.id,
@@ -889,6 +892,7 @@ function sinkronkanJadwalKeKalender() {
         ruangan: item.lokasi || "-",
         tempat: item.lokasi || "-",
         pic: item.pic,
+        person: item.person || [],
         warna: warnaTerpilih(
           "Per Program",
           item.id,
