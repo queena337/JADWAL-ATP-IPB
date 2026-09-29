@@ -2124,6 +2124,11 @@
           document.getElementById("fRuangan").value = "";
           document.getElementById("fTempat").value = "";
           document.getElementById("fPic").value = "";
+          // Buang opsi PIC sementara dari sesi/jadwal sebelumnya agar
+          // nama "sekali pakai" tidak menumpuk di daftar pilihan.
+          document
+            .querySelectorAll('#fPic option[data-sementara="1"]')
+            .forEach((o) => o.remove());
           if (typeof window.renderPersonJadwalRows === "function")
             window.renderPersonJadwalRows([]);
           document.getElementById("formJenis").value = "kunjungan";

@@ -1415,11 +1415,15 @@ const QUICK_ADD_CONFIG = {
   },
   pic: {
     title: "Tambah PIC",
-    desc: "Masukkan nama PIC baru.",
+    desc: "Masukkan nama PIC baru. Nama ini hanya dipakai untuk jadwal yang sedang dibuat, tidak disimpan permanen.",
     placeholder: "Contoh: Novi Putri Jelita S.Pi",
     icon: "fa-solid fa-user-tie",
     list: () => masterPic,
-    push: (val) => masterPic.push(val),
+    // PIC yang ditambahkan lewat form TIDAK disimpan permanen ke master.
+    // Nama hanya dipakai untuk jadwal yang sedang dibuat (sementara),
+    // sehingga tidak muncul di semua penambahan berikutnya.
+    push: () => {},
+    sementara: true,
   },
   instansi: {
     title: "Tambah Instansi",
@@ -1480,22 +1484,52 @@ function submitQuickAdd() {
     if (input) input.focus();
     return;
   }
+
+  const jenis = currentQuickAddType;
+
+  // ==== PIC SEMENTARA ====
+  // Nama PIC yang ditambahkan dari form TIDAK disimpan ke master data
+  // (tidak ke localStorage maupun Firestore). Nama hanya dipakai untuk
+  // jadwal yang sedang dibuat, lalu hilang saat form dibuka lagi.
+  if (cfg.sementara) {
+    const sementaraEl = document.getElementById("fPic");
+    if (sementaraEl && !Array.from(sementaraEl.options).some((o) => o.value === val)) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      opt.dataset.sementara = "1";
+      sementaraEl.appendChild(opt);
+    }
+    const eventPicEl = document.getElementById("eventPic");
+    if (eventPicEl && !Array.from(eventPicEl.options).some((o) => o.value === val)) {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      opt.dataset.sementara = "1";
+      eventPicEl.appendChild(opt);
+    }
+    closeQuickAdd();
+    // Langsung pilih nama sementara pada dropdown PIC yang terbuka.
+    document
+      .querySelectorAll("#fPic, #eventPic")
+      .forEach((sel) => (sel.value = val));
+    if (typeof showAppAlert === "function") {
+      showAppAlert(`✅ ${val} dipakai untuk jadwal ini (sementara).`);
+    }
+    return;
+  }
+
   cfg.push(val);
   updateDropdowns();
   renderMasterData();
   simpanSemuaData();
 
-  // Setelah menambah PIC/Ruangan/Tempat/Instansi, langsung pilih nama baru
+  // Setelah menambah Ruangan/Tempat/Instansi, langsung pilih nama baru
   // pada dropdown yang sedang terbuka agar pengguna melihat hasilnya.
   // Catatan: currentQuickAddType dibaca SEBELUM closeQuickAdd() karena
   // fungsi itu mereset nilainya menjadi null.
-  const jenis = currentQuickAddType;
   closeQuickAdd();
-  if (jenis === "pic") {
-    document
-      .querySelectorAll("#fPic, #eventPic")
-      .forEach((sel) => (sel.value = val));
-  } else if (jenis === "ruangan") {
+  if (jenis === "ruangan") {
     document
       .querySelectorAll("#fRuangan, #eventRuangan")
       .forEach((sel) => (sel.value = val));
