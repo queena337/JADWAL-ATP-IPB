@@ -1396,22 +1396,29 @@ function hapusJadwalFromModal() {
 // ============================================
 
 // Konfigurasi tiap jenis data master yang bisa ditambah cepat.
+//
+// PENTING: semua data yang ditambahkan dari form jadwal bersifat SEMENTARA.
+// Nama/ruangan/tempat/instansi hanya dipakai untuk jadwal yang sedang
+// dibuat, TIDAK disimpan ke master (localStorage/Firestore), dan hilang
+// saat form Tambah Jadwal dibuka lagi.
 const QUICK_ADD_CONFIG = {
   ruangan: {
     title: "Tambah Ruangan",
-    desc: "Masukkan nama ruangan baru. Data ini langsung tersedia di dropdown.",
+    desc: "Masukkan nama ruangan baru. Hanya dipakai untuk jadwal yang sedang dibuat.",
     placeholder: "Contoh: R. Meeting",
     icon: "fa-solid fa-door-open",
     list: () => masterRuangan,
-    push: (val) => masterRuangan.push(val),
+    push: () => {},
+    sementara: true,
   },
   tempat: {
     title: "Tambah Tempat",
-    desc: "Masukkan nama tempat / lokasi baru.",
+    desc: "Masukkan nama tempat / lokasi baru. Hanya dipakai untuk jadwal yang sedang dibuat.",
     placeholder: "Contoh: STP",
     icon: "fa-solid fa-location-dot",
     list: () => masterTempat,
-    push: (val) => masterTempat.push(val),
+    push: () => {},
+    sementara: true,
   },
   pic: {
     title: "Tambah PIC",
@@ -1419,19 +1426,17 @@ const QUICK_ADD_CONFIG = {
     placeholder: "Contoh: Novi Putri Jelita S.Pi",
     icon: "fa-solid fa-user-tie",
     list: () => masterPic,
-    // PIC yang ditambahkan lewat form TIDAK disimpan permanen ke master.
-    // Nama hanya dipakai untuk jadwal yang sedang dibuat (sementara),
-    // sehingga tidak muncul di semua penambahan berikutnya.
     push: () => {},
     sementara: true,
   },
   instansi: {
     title: "Tambah Instansi",
-    desc: "Masukkan nama instansi / kategori pengunjung baru.",
+    desc: "Masukkan nama instansi baru. Hanya dipakai untuk jadwal yang sedang dibuat.",
     placeholder: "Contoh: Instansi Pemerintah",
     icon: "fa-solid fa-building-columns",
     list: () => masterInstansi,
-    push: (val) => masterInstansi.push(val),
+    push: () => {},
+    sementara: true,
   },
 };
 
@@ -1487,45 +1492,51 @@ function submitQuickAdd() {
 
   const jenis = currentQuickAddType;
 
-  // ==== PIC SEMENTARA ====
-  // Nama PIC yang ditambahkan dari form TIDAK disimpan ke master data
+  // ==== SEMUA DATA DARI FORM BERSIFAT SEMENTARA ====
+  // Nama yang ditambahkan dari form TIDAK disimpan ke master data
   // (tidak ke localStorage maupun Firestore). Nama hanya dipakai untuk
   // jadwal yang sedang dibuat, lalu hilang saat form dibuka lagi.
+  const SELECTOR_PER_JENIS = {
+    pic: ["#fPic", "#eventPic"],
+    ruangan: ["#fRuangan", "#eventRuangan"],
+    tempat: ["#fTempat", "#eventTempat"],
+    instansi: ["#fInstansi", "#eventInstansi"],
+  };
+  const selectorList = SELECTOR_PER_JENIS[jenis] || [];
+
   if (cfg.sementara) {
-    const sementaraEl = document.getElementById("fPic");
-    if (sementaraEl && !Array.from(sementaraEl.options).some((o) => o.value === val)) {
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = val;
-      opt.dataset.sementara = "1";
-      sementaraEl.appendChild(opt);
-    }
-    const eventPicEl = document.getElementById("eventPic");
-    if (eventPicEl && !Array.from(eventPicEl.options).some((o) => o.value === val)) {
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = val;
-      opt.dataset.sementara = "1";
-      eventPicEl.appendChild(opt);
-    }
+    // Tambahkan opsi sementara pada setiap dropdown terkait (form jadwal
+    // maupun modal event), lalu langsung pilih.
+    selectorList.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((sel) => {
+        const sudahAda = Array.from(sel.options).some(
+          (o) => o.value === val,
+        );
+        if (!sudahAda) {
+          const opt = document.createElement("option");
+          opt.value = val;
+          opt.textContent = val;
+          opt.dataset.sementara = "1";
+          sel.appendChild(opt);
+        }
+        sel.value = val;
+      });
+    });
     closeQuickAdd();
-    // Langsung pilih nama sementara pada dropdown PIC yang terbuka.
-    document
-      .querySelectorAll("#fPic, #eventPic")
-      .forEach((sel) => (sel.value = val));
     if (typeof showAppAlert === "function") {
       showAppAlert(`✅ ${val} dipakai untuk jadwal ini (sementara).`);
     }
     return;
   }
 
+  // Cadangan: bila suatu saat ada jenis yang tidak ditandai sementara.
   cfg.push(val);
   updateDropdowns();
   renderMasterData();
   simpanSemuaData();
 
-  // Setelah menambah Ruangan/Tempat/Instansi, langsung pilih nama baru
-  // pada dropdown yang sedang terbuka agar pengguna melihat hasilnya.
+  // Setelah menambah data, langsung pilih nama baru pada dropdown yang
+  // sedang terbuka agar pengguna melihat hasilnya.
   // Catatan: currentQuickAddType dibaca SEBELUM closeQuickAdd() karena
   // fungsi itu mereset nilainya menjadi null.
   closeQuickAdd();
