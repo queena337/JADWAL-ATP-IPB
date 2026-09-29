@@ -21,35 +21,17 @@ let masterInstansi = [
 ];
 
 // ============================================
-// PIC YANG TIDAK DIPAKAI (dibuang otomatis)
+// PEMBERSIHAN MASTER PIC
 // ============================================
-// Nama PIC di bawah ini tidak boleh muncul lagi di pilihan PIC, termasuk
-// "Nurma", "Fathiya", dan "Fatthiya Azahra". Karena daftar master PIC bisa
-// tersimpan di localStorage maupun Firestore dari sesi sebelumnya, daftar ini
-// disaring ulang setiap kali data dimuat agar namanya benar-benar hilang.
-//
-// Pencocokan memakai KATA KUNCI INTI (bukan ejaan persis) supaya variasi
-// penulisan seperti "Fathiya", "Fatthiya", "Fathia", atau
-// "Fatthiya Azahra" semuanya ikut terbuang.
-const PIC_KATA_KUNCI_DIBLOKIR = ["nurma", "fath", "fatth", "fathiya", "fatthiya"];
-
-function namaPicDiblokir(nama) {
-  const n = String(nama || "")
-    .toLowerCase()
-    .replace(/[^a-z\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!n) return true; // nama kosong juga dibuang
-  return PIC_KATA_KUNCI_DIBLOKIR.some((kata) => n.includes(kata));
-}
-
+// Tidak ada lagi nama PIC yang diblokir — semua nama PIC yang ditambahkan
+// pengguna boleh dipakai. Fungsi ini hanya membuang entri kosong/invalid.
 function bersihkanMasterPic() {
   if (!Array.isArray(masterPic)) {
     masterPic = [];
     return false;
   }
   const sebelum = masterPic.length;
-  masterPic = masterPic.filter((nama) => !namaPicDiblokir(nama));
+  masterPic = masterPic.filter((nama) => String(nama || "").trim() !== "");
   const berubah = masterPic.length !== sebelum;
   if (berubah) {
     try {
@@ -1087,7 +1069,16 @@ function updateDropdowns() {
       opt.textContent = item;
       select.appendChild(opt);
     });
-    if (currentVal && masterPic.includes(currentVal)) {
+    // Jika nilai yang sedang terpilih belum ada di daftar master
+    // (mis. baru diketik/ditambah), tetap tambahkan sebagai opsi agar
+    // pilihan pengguna tidak hilang saat dropdown dirender ulang.
+    if (currentVal && !masterPic.includes(currentVal)) {
+      const opt = document.createElement("option");
+      opt.value = currentVal;
+      opt.textContent = currentVal;
+      select.appendChild(opt);
+    }
+    if (currentVal) {
       select.value = currentVal;
     }
   });
@@ -1493,7 +1484,31 @@ function submitQuickAdd() {
   updateDropdowns();
   renderMasterData();
   simpanSemuaData();
+
+  // Setelah menambah PIC/Ruangan/Tempat/Instansi, langsung pilih nama baru
+  // pada dropdown yang sedang terbuka agar pengguna melihat hasilnya.
+  // Catatan: currentQuickAddType dibaca SEBELUM closeQuickAdd() karena
+  // fungsi itu mereset nilainya menjadi null.
+  const jenis = currentQuickAddType;
   closeQuickAdd();
+  if (jenis === "pic") {
+    document
+      .querySelectorAll("#fPic, #eventPic")
+      .forEach((sel) => (sel.value = val));
+  } else if (jenis === "ruangan") {
+    document
+      .querySelectorAll("#fRuangan, #eventRuangan")
+      .forEach((sel) => (sel.value = val));
+  } else if (jenis === "tempat") {
+    document
+      .querySelectorAll("#fTempat, #eventTempat")
+      .forEach((sel) => (sel.value = val));
+  } else if (jenis === "instansi") {
+    document
+      .querySelectorAll("#fInstansi, #eventInstansi")
+      .forEach((sel) => (sel.value = val));
+  }
+
   if (typeof showAppAlert === "function") {
     showAppAlert(`✅ ${val} berhasil ditambahkan!`);
   }
@@ -1680,6 +1695,10 @@ function tambahMasterPic() {
   input.value = "";
   renderMasterData();
   updateDropdowns();
+  // Langsung pilih nama baru pada dropdown PIC yang sedang terbuka.
+  document
+    .querySelectorAll("#fPic, #eventPic")
+    .forEach((sel) => (sel.value = val));
   simpanSemuaData();
   alert("✅ PIC berhasil ditambahkan!");
 }
