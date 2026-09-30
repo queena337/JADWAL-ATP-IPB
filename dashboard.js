@@ -1031,9 +1031,29 @@ document.querySelectorAll(".menu a").forEach((link) => {
 // FUNGSI UPDATE DROPDOWN
 // ============================================
 function updateDropdowns() {
+  // Ambil semua opsi bertanda sementara (data-sementara="1") dari sebuah
+  // <select> agar tidak ikut terhapus saat daftar master dirender ulang.
+  // Opsi sementara hanya berlaku untuk jadwal yang sedang dibuat.
+  const ambilOpsiSementara = (select) =>
+    Array.from(select.querySelectorAll('option[data-sementara="1"]')).map(
+      (o) => o.value,
+    );
+  const tambahOpsiSementara = (select, values) => {
+    values.forEach((v) => {
+      if (!Array.from(select.options).some((o) => o.value === v)) {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        opt.dataset.sementara = "1";
+        select.appendChild(opt);
+      }
+    });
+  };
+
   const ruanganSelects = document.querySelectorAll("#fRuangan, #eventRuangan");
   ruanganSelects.forEach((select) => {
     const currentVal = select.value;
+    const sementaraVals = ambilOpsiSementara(select);
     select.innerHTML = '<option value="">Pilih Ruangan</option>';
     masterRuangan.forEach((item) => {
       const opt = document.createElement("option");
@@ -1041,13 +1061,13 @@ function updateDropdowns() {
       opt.textContent = item;
       select.appendChild(opt);
     });
-    if (currentVal && masterRuangan.includes(currentVal)) {
-      select.value = currentVal;
-    }
+    tambahOpsiSementara(select, sementaraVals);
+    if (currentVal) select.value = currentVal;
   });
   const tempatSelects = document.querySelectorAll("#fTempat, #eventTempat");
   tempatSelects.forEach((select) => {
     const currentVal = select.value;
+    const sementaraVals = ambilOpsiSementara(select);
     select.innerHTML = '<option value="">Pilih Tempat</option>';
     masterTempat.forEach((item) => {
       const opt = document.createElement("option");
@@ -1055,13 +1075,13 @@ function updateDropdowns() {
       opt.textContent = item;
       select.appendChild(opt);
     });
-    if (currentVal && masterTempat.includes(currentVal)) {
-      select.value = currentVal;
-    }
+    tambahOpsiSementara(select, sementaraVals);
+    if (currentVal) select.value = currentVal;
   });
   const picSelects = document.querySelectorAll("#fPic, #eventPic");
   picSelects.forEach((select) => {
     const currentVal = select.value;
+    const sementaraVals = ambilOpsiSementara(select);
     select.innerHTML = '<option value="">Pilih PIC</option>';
     masterPic.forEach((item) => {
       const opt = document.createElement("option");
@@ -1073,11 +1093,9 @@ function updateDropdowns() {
     // (mis. baru diketik/ditambah), tetap tambahkan sebagai opsi agar
     // pilihan pengguna tidak hilang saat dropdown dirender ulang.
     if (currentVal && !masterPic.includes(currentVal)) {
-      const opt = document.createElement("option");
-      opt.value = currentVal;
-      opt.textContent = currentVal;
-      select.appendChild(opt);
+      sementaraVals.push(currentVal);
     }
+    tambahOpsiSementara(select, sementaraVals);
     if (currentVal) {
       select.value = currentVal;
     }
@@ -1085,6 +1103,7 @@ function updateDropdowns() {
   const instansiSelects = document.querySelectorAll("#fInstansi");
   instansiSelects.forEach((select) => {
     const currentVal = select.value;
+    const sementaraVals = ambilOpsiSementara(select);
     select.innerHTML = '<option value="">Pilih Instansi</option>';
     masterInstansi.forEach((item) => {
       const opt = document.createElement("option");
@@ -1092,7 +1111,11 @@ function updateDropdowns() {
       opt.textContent = item;
       select.appendChild(opt);
     });
-    if (currentVal && masterInstansi.includes(currentVal)) {
+    if (currentVal && !masterInstansi.includes(currentVal)) {
+      sementaraVals.push(currentVal);
+    }
+    tambahOpsiSementara(select, sementaraVals);
+    if (currentVal) {
       select.value = currentVal;
     }
   });

@@ -2124,10 +2124,12 @@
           document.getElementById("fRuangan").value = "";
           document.getElementById("fTempat").value = "";
           document.getElementById("fPic").value = "";
-          // Buang opsi PIC sementara dari sesi/jadwal sebelumnya agar
-          // nama "sekali pakai" tidak menumpuk di daftar pilihan.
+          // Buang semua opsi SEMENTARA dari sesi/jadwal sebelumnya agar
+          // data "sekali pakai" (PIC/Ruangan/Tempat/Instansi) tidak
+          // menumpuk di daftar pilihan. Opsi ini hanya berlaku untuk
+          // jadwal yang sedang dibuat.
           document
-            .querySelectorAll('#fPic option[data-sementara="1"]')
+            .querySelectorAll('option[data-sementara="1"]')
             .forEach((o) => o.remove());
           if (typeof window.renderPersonJadwalRows === "function")
             window.renderPersonJadwalRows([]);
