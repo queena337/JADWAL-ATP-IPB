@@ -21,6 +21,70 @@ let masterInstansi = [
 ];
 
 // ============================================
+// HAPUS PILIHAN LAMA (RUANGAN / PIC / TEMPAT)
+// ============================================
+// Entri berikut HANYA dihapus dari daftar pilihan yang ada, TIDAK diblokir.
+// Pengguna tetap bisa menambahkannya kembali lewat tombol "+ Tambah ...".
+function normalkanNama(nama) {
+  return String(nama || "")
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Hapus dari daftar jika namanya cocok persis atau diawali pola (mis. gelar).
+function saringDaftarHapus(daftar, pola) {
+  if (!Array.isArray(daftar)) return { hasil: [], berubah: true };
+  const set = pola.map(normalkanNama);
+  const hasil = daftar.filter((item) => {
+    const n = normalkanNama(item);
+    return !set.some((p) => n === p || n.startsWith(p + " "));
+  });
+  return { hasil, berubah: hasil.length !== daftar.length };
+}
+
+function bersihkanPilihanLama() {
+  let berubah = false;
+
+  // Ruangan: hapus "Departemen Proteksi Tanaman".
+  const ruangan = saringDaftarHapus(masterRuangan, ["departemen proteksi tanaman"]);
+  if (ruangan.berubah) {
+    masterRuangan = ruangan.hasil;
+    berubah = true;
+  }
+
+  // PIC: hapus "Bonjok", "dr roza", "nurma".
+  const pic = saringDaftarHapus(masterPic, ["bonjok", "dr roza", "nurma"]);
+  if (pic.berubah) {
+    masterPic = pic.hasil;
+    berubah = true;
+  }
+
+  // Tempat/Lokasi: sisakan hanya ATP, STP, TNC.
+  if (Array.isArray(masterTempat)) {
+    const sisakan = ["atp", "stp", "tnc"];
+    const tempat = masterTempat.filter((item) =>
+      sisakan.includes(normalkanNama(item)),
+    );
+    if (tempat.length !== masterTempat.length) {
+      masterTempat = tempat;
+      berubah = true;
+    }
+  }
+
+  if (berubah) {
+    try {
+      localStorage.setItem("masterRuangan", JSON.stringify(masterRuangan));
+      localStorage.setItem("masterPic", JSON.stringify(masterPic));
+      localStorage.setItem("masterTempat", JSON.stringify(masterTempat));
+    } catch (_) {}
+  }
+
+  return berubah;
+}
+
+// ============================================
 // PEMBERSIHAN MASTER PIC
 // ============================================
 // Tidak ada lagi nama PIC yang diblokir — semua nama PIC yang ditambahkan
@@ -38,6 +102,77 @@ function bersihkanMasterPic() {
       localStorage.setItem("masterPic", JSON.stringify(masterPic));
     } catch (_) {}
   }
+  return berubah;
+}
+
+// ============================================
+// DAFTAR TERBARU: HAPUS PILIHAN LAMA (TIDAK DIBLOKIR)
+// ============================================
+// Entri di bawah ini hanya DIHAPUS dari daftar pilihan dropdown yang ada.
+// Pengguna tetap boleh menambahkannya kembali lewat "+ Tambah ..." — tidak
+// ada pemblokiran sama sekali.
+const HAPUS_RUANGAN = ["departemen proteksi tanaman"];
+const HAPUS_PIC = ["bonjok", "dr roza", "nurma"];
+// Untuk lokasi/tempat: hanya sisakan ATP, STP, TNC.
+const SISAKAN_TEMPAT = ["atp", "stp", "tnc"];
+
+// Bandingkan nama secara longgar (abaikan huruf besar/kecil, titik, dan
+// spasi berlebih) supaya variasi seperti "Dr. Roza" tetap ikut terhapus.
+function normalkanNama(nama) {
+  return String(nama || "")
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Hapus entri yang namanya cocok dengan salah satu pola.
+function saringDaftarHapus(daftar, pola) {
+  if (!Array.isArray(daftar)) return { hasil: [], berubah: true };
+  const set = pola.map(normalkanNama);
+  const hasil = daftar.filter((item) => {
+    const n = normalkanNama(item);
+    return !set.some((p) => n === p || n.startsWith(p + " "));
+  });
+  return { hasil, berubah: hasil.length !== daftar.length };
+}
+
+// Bersihkan daftar pilihan lama (ruangan, PIC, dan tempat/lokasi).
+function bersihkanPilihanLama() {
+  let berubah = false;
+
+  const ruangan = saringDaftarHapus(masterRuangan, HAPUS_RUANGAN);
+  if (ruangan.berubah) {
+    masterRuangan = ruangan.hasil;
+    berubah = true;
+  }
+
+  const pic = saringDaftarHapus(masterPic, HAPUS_PIC);
+  if (pic.berubah) {
+    masterPic = pic.hasil;
+    berubah = true;
+  }
+
+  // Tempat/lokasi: sisakan hanya ATP, STP, TNC. Entri lain dihapus.
+  if (Array.isArray(masterTempat)) {
+    const sisakan = SISAKAN_TEMPAT.map(normalkanNama);
+    const tempat = masterTempat.filter((item) =>
+      sisakan.includes(normalkanNama(item)),
+    );
+    if (tempat.length !== masterTempat.length) {
+      masterTempat = tempat;
+      berubah = true;
+    }
+  }
+
+  if (berubah) {
+    try {
+      localStorage.setItem("masterRuangan", JSON.stringify(masterRuangan));
+      localStorage.setItem("masterPic", JSON.stringify(masterPic));
+      localStorage.setItem("masterTempat", JSON.stringify(masterTempat));
+    } catch (_) {}
+  }
+
   return berubah;
 }
 
@@ -4088,9 +4223,15 @@ function resetDataFromUser() {
 document.addEventListener("DOMContentLoaded", function () {
   muatSemuaData();
 
+  // Hapus pilihan lama dari daftar dropdown (ruangan/PIC/tempat) sesuai
+  // permintaan terbaru. Hanya dihapus dari pilihan, bukan diblokir.
+  let masterBerubah = bersihkanPilihanLama();
+
   // Pastikan PIC yang tidak dipakai (mis. "Nurma"/"Fathiya") hilang dari
   // data lama; simpan ulang hanya bila memang ada yang dibuang.
-  if (bersihkanMasterPic()) simpanSemuaData();
+  if (bersihkanMasterPic()) masterBerubah = true;
+
+  if (masterBerubah) simpanSemuaData();
 
   // CEK APAKAH MASTER DATA MASIH DEFAULT LAMA
   if (
