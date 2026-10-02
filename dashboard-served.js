@@ -5,7 +5,7 @@
 let masterRuangan = ["R.Meeting", "R. VIP", "Balai Rakyat/BRI", "Guest House"];
 let masterTempat = ["STP", "ATP", "TNC"];
 let masterPic = [
-  "Novi Putri Jelita S.Pi",
+  "Novia Putri Jelita S.Pi",
   "Isti Rahmani S.P",
   "Winda Oktaviona S.K.Pm",
   "Pandu Pamungkas S.Si",
@@ -560,6 +560,24 @@ window.getDataRealtimeAdmin = function () {
   };
 };
 
+// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi") menjadi nama yang
+// benar ("Novia Putri Jelita S.Pi"). Dijalankan sekali saat data dimuat
+// agar jadwal/event yang sudah tersimpan ikut terupdate.
+function perbaikiNamaPicLama() {
+  const SALAH = "Novi Putri Jelita S.Pi";
+  const BENAR = "Novia Putri Jelita S.Pi";
+  const ganti = (v) => (v === SALAH ? BENAR : v);
+  [kunjunganData, ruangData, balaiData, programData, eventData].forEach(
+    (arr) => {
+      if (!Array.isArray(arr)) return;
+      arr.forEach((item) => {
+        if (item && typeof item.pic === "string") item.pic = ganti(item.pic);
+      });
+    },
+  );
+  if (Array.isArray(masterPic)) masterPic = masterPic.map(ganti);
+}
+
 function muatSemuaData() {
   try {
     const savedRuangan = localStorage.getItem("masterRuangan");
@@ -597,6 +615,7 @@ function muatSemuaData() {
     if (savedNextBalaiId) nextBalaiId = parseInt(savedNextBalaiId) || 1;
     if (savedNextProgramId) nextProgramId = parseInt(savedNextProgramId) || 2;
     if (savedNextEventId) nextEventId = parseInt(savedNextEventId) || 1;
+    perbaikiNamaPicLama();
   } catch (e) {
     console.log("Gagal memuat data:", e);
   }
@@ -1516,7 +1535,7 @@ function resetMasterData() {
       ];
       masterTempat = ["STP", "ATP", "TNC"];
       masterPic = [
-        "Novi Putri Jelita S.Pi",
+        "Novia Putri Jelita S.Pi",
         "Isti Rahmani S.P",
         "Winda Oktaviona S.K.Pm",
         "Pandu Pamungkas S.Si",
@@ -3469,7 +3488,7 @@ document.addEventListener("DOMContentLoaded", function () {
     masterRuangan = ["R.Meeting", "R. VIP", "Balai Rakyat/BRI", "Guest House"];
     masterTempat = ["STP", "ATP", "TNC"];
     masterPic = [
-      "Novi Putri Jelita S.Pi",
+      "Novia Putri Jelita S.Pi",
       "Isti Rahmani S.P",
       "Winda Oktaviona S.K.Pm",
       "Pandu Pamungkas S.Si",
