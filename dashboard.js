@@ -760,8 +760,42 @@ function simpanSemuaData() {
   }
 }
 
+// Penjaga: dokumen realtime yang KOSONG tidak boleh menimpa data yang sudah
+// ada di layar/localStorage. Tanpa ini, snapshot kosong (atau dokumen yang
+// gagal dibaca) membuat semua kegiatan yang sudah ditambahkan "hilang"
+// seketika. Untuk menghapus data secara sengaja, gunakan tombol Hapus atau
+// fungsi resetAllData()/resetDataFromUser().
+function dataRealtimeKosong(remoteData) {
+  const daftar = [
+    "kunjunganData",
+    "ruangData",
+    "balaiData",
+    "programData",
+    "eventData",
+    "capaianData",
+    "capaianMingguanData",
+  ];
+  const adaDataJadwal = daftar.some(
+    (k) => Array.isArray(remoteData[k]) && remoteData[k].length > 0,
+  );
+  if (adaDataJadwal) return false;
+  const adaMaster = [
+    "masterRuangan",
+    "masterTempat",
+    "masterPic",
+    "masterInstansi",
+  ].some((k) => Array.isArray(remoteData[k]) && remoteData[k].length > 0);
+  return !adaMaster;
+}
+
 window.terapkanDataRealtimeAdmin = function (remoteData) {
   if (!remoteData) return;
+  if (dataRealtimeKosong(remoteData)) {
+    console.warn(
+      "⚠️ Data realtime kosong diabaikan agar data yang sudah ditambahkan tidak terhapus.",
+    );
+    return;
+  }
   masterRuangan = remoteData.masterRuangan || masterRuangan;
   masterTempat = remoteData.masterTempat || masterTempat;
   masterPic = remoteData.masterPic || masterPic;
@@ -900,6 +934,25 @@ function sinkronkanJadwalKeKalender() {
     warnaTersimpan.get(`${sumber}#${sumberId}`) ||
     warnaOtomatisDariNama(...nilaiOtomatis);
 
+  // PENTING: event turunan jadwal diperbarui DI TEMPAT, bukan dibuang lalu
+  // dibuat ulang. Sebelumnya setiap render kalender menghapus semua event
+  // turunan dan membuatnya lagi dengan ID baru (nextEventId++), sehingga:
+  //   - ID kegiatan terus membengkak (semakin lama semakin besar),
+  //   - kunci warna `${sumber}#${sumberId}` tidak pernah cocok lagi karena
+  //     event lama (tempat warna pilihan user disimpan) sudah terhapus,
+  //     sehingga warna pilihan user selalu tertimpa warna otomatis.
+  // Simpan event turunan lama berdasarkan kunci sumber, dan pakai kembali ID
+  // lamanya agar data yang sudah ada tetap stabil.
+  const eventTurunanLama = new Map();
+  eventData.forEach((e) => {
+    if (e.dariJadwal) eventTurunanLama.set(`${e.sumber}#${e.sumberId}`, e);
+  });
+
+  const ambilIdEvent = (kunci) => {
+    const lama = eventTurunanLama.get(kunci);
+    return lama && typeof lama.id === "number" ? lama.id : nextEventId++;
+  };
+
   eventData = eventData.filter((e) => !e.dariJadwal);
 
   kunjunganData.forEach((item) => {
@@ -911,7 +964,7 @@ function sinkronkanJadwalKeKalender() {
       const bln = parseInt(parts[1]);
       const thn = parseInt(parts[0]);
       eventData.push({
-        id: nextEventId++,
+        id: ambilIdEvent(`Kunjungan#${item.id}`),
         tanggalMulai,
         tanggalSelesai,
         tanggal: tgl,
@@ -942,12 +995,12 @@ function sinkronkanJadwalKeKalender() {
     const tanggalMulai = item.tanggalMulai || item.tanggal;
     const tanggalSelesai = item.tanggalSelesai || tanggalMulai;
     if (tanggalMulai) {
-      const parts = tanggalMulai.split("-");
+        const parts = tanggalMulai.split("-");
       const tgl = parseInt(parts[2]);
       const bln = parseInt(parts[1]);
       const thn = parseInt(parts[0]);
       eventData.push({
-        id: nextEventId++,
+        id: ambilIdEvent(`Pemakaian Ruang#${item.id}`),
         tanggalMulai,
         tanggalSelesai,
         tanggal: tgl,
@@ -982,7 +1035,7 @@ function sinkronkanJadwalKeKalender() {
       const bln = parseInt(parts[1]);
       const thn = parseInt(parts[0]);
       eventData.push({
-        id: nextEventId++,
+        id: ambilIdEvent(`Balai BRI#${item.id}`),
         tanggalMulai,
         tanggalSelesai,
         tanggal: tgl,
@@ -1017,7 +1070,7 @@ function sinkronkanJadwalKeKalender() {
       const bln = parseInt(parts[1]);
       const thn = parseInt(parts[0]);
       eventData.push({
-        id: nextEventId++,
+        id: ambilIdEvent(`Per Program#${item.id}`),
         tanggalMulai,
         tanggalSelesai,
         tanggal: tgl,
@@ -1972,6 +2025,83 @@ function hapusMaster(jenis, value) {
 // ============================================
 // RESET MASTER DATA - UNTUK YANG DI JS
 // ============================================
+// ============================================
+// TOMBOL DARURAT: PULIHKAN KEGIATAN DARI SERVER (FIREBASE)
+// ============================================
+// Dipakai bila tampilan kalender/jadwal terlihat kosong padahal data di server
+// masih ada. Fungsi ini memuat ULANG data dari Firebase (bukan menimpa server)
+// lalu menggambar ulang kalender.
+window.pulihkanDataDariServer = async function () {
+  try {
+    const url =
+      "https://firestore.googleapis.com/v1/projects/jadwal-atp-ipb-6e767/" +
+      "databases/(default)/documents/sharedData/dashboard" +
+      "?key=AIzaSyBa3Jv1Ww_MjQI5WTEh5AJbfiSGzJLQzHM";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const doc = await res.json();
+    const fields = doc.fields || {};
+    const ambilArray = (k) =>
+      ((fields[k] && fields[k].arrayValue && fields[k].arrayValue.values) || []).map(
+        (v) => v.mapValue.fields,
+      );
+    const keObjek = (f) => {
+      if (!f) return undefined;
+      if (f.stringValue !== undefined) return f.stringValue;
+      if (f.integerValue !== undefined) return parseInt(f.integerValue, 10);
+      if (f.doubleValue !== undefined) return f.doubleValue;
+      if (f.booleanValue !== undefined) return f.booleanValue;
+      if (f.arrayValue !== undefined)
+        return (f.arrayValue.values || []).map((v) => keObjek(v.mapValue.fields));
+      if (f.mapValue !== undefined) return keObjek(f.mapValue.fields);
+      return undefined;
+    };
+    const keDaftar = (k) => ambilArray(k).map(keObjek).filter(Boolean);
+    const keDaftarString = (k) =>
+      (((fields[k] || {}).arrayValue || {}).values || []).map(
+        (v) => v.stringValue,
+      );
+
+    const data = {
+      kunjunganData: keDaftar("kunjunganData"),
+      ruangData: keDaftar("ruangData"),
+      balaiData: keDaftar("balaiData"),
+      programData: keDaftar("programData"),
+      eventData: keDaftar("eventData"),
+      capaianData: keDaftar("capaianData"),
+      capaianMingguanData: keDaftar("capaianMingguanData"),
+      masterRuangan: keDaftarString("masterRuangan"),
+      masterTempat: keDaftarString("masterTempat"),
+      masterPic: keDaftarString("masterPic"),
+      masterInstansi: keDaftarString("masterInstansi"),
+      nextKunjunganId: keObjek(fields.nextKunjunganId) || 1,
+      nextRuangId: keObjek(fields.nextRuangId) || 1,
+      nextBalaiId: keObjek(fields.nextBalaiId) || 1,
+      nextProgramId: keObjek(fields.nextProgramId) || 1,
+      nextEventId: keObjek(fields.nextEventId) || 1,
+    };
+
+    const jumlah = data.eventData.length;
+    if (typeof window.terapkanDataRealtimeAdmin === "function") {
+      window.terapkanDataRealtimeAdmin(data);
+    }
+    simpanSemuaData();
+    try {
+      renderRingkasanJadwal();
+      updateStats();
+      renderCalendar(currentMonth, currentYear);
+      renderCalendarFull(currentMonthFull, currentYearFull);
+      renderDashboardEvents();
+    } catch (e) {
+      // Halaman user tidak punya elemen kalender — abaikan.
+    }
+    alert("✅ Kegiatan dipulihkan dari server: " + jumlah + " kegiatan.");
+  } catch (e) {
+    console.error("❌ Gagal memulihkan data dari server:", e);
+    alert("❌ Gagal memulihkan data dari server: " + e.message);
+  }
+};
+
 function resetMasterData() {
   showAppConfirm(
     "⚠️ Reset semua master data ke default?",
@@ -4290,18 +4420,6 @@ document.addEventListener("DOMContentLoaded", function () {
   setCurrentDate();
   renderCapaianTable();
   updateDropdowns();
-  sinkronkanJadwalKeKalender();
-  sinkronkanKunjunganKeCapaian();
-  initBarChart("mingguan");
-  initPieChart();
-  initBarChartFull("bulanan");
-  initPieChartFull();
-  initBarChartLaporan("mingguan");
-  initPieChartLaporan();
-  generateLaporan();
-  // Posisi sidebar di mobile diatur oleh CSS (.sidebar / .sidebar.open).
-  // Jangan set transform inline di sini karena akan menimpa kelas .open
-  // sehingga menu mobile tidak bisa terbuka.
   console.log("✅ Data berhasil dimuat dari localStorage!");
   console.log("📋 Kunjungan:", kunjunganData.length, "data");
   console.log("🏢 Ruang:", ruangData.length, "data");
@@ -4327,3 +4445,6 @@ document.addEventListener("DOMContentLoaded", function () {
 console.log("💡 Untuk reset master data, ketik: resetMasterData()");
 console.log("💡 Untuk reset data dari user.html, ketik: resetDataFromUser()");
 console.log("💡 Untuk mereset semua data, ketik: resetAllData()");
+console.log(
+  "💡 Bila kegiatan tampak hilang padahal ada di server, ketik: pulihkanDataDariServer()",
+);

@@ -795,6 +795,25 @@
               </button>
             </div>
 
+            <!-- ===== PERSON / ORANG YANG BERPARTISIPASI (MAKS. 5 ORANG) ===== -->
+            <div class="form-group">
+              <label>
+                <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                Person (Orang yang Berpartisipasi)
+              </label>
+              <div class="person-rows" id="fPersonRows"></div>
+              <button
+                type="button"
+                class="btn-person-add"
+                id="btnAddPersonJadwal"
+                onclick="tambahPersonJadwalRow()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Tambah Person
+                <span class="person-counter" id="personJadwalCounter">0/5</span>
+              </button>
+            </div>
+
             <div
               class="form-group"
               style="flex-direction: row; gap: 10px; margin-top: 10px"
@@ -1964,7 +1983,7 @@
       </div>
     </div>
 
-    <script src="dashboard.js?v=4"></script>
+    <script src="dashboard-served.js?v=5"></script>
     <script src="icons.js"></script>
     <script type="module" src="firebase-dashboard.js"></script>
 
