@@ -2310,19 +2310,23 @@ function exportJadwalPDF() {
   }
 }
 
-// Membuat <table> HTML rapi dari data jadwal untuk export Word/Excel/CSV.
+// Membuat <table> HTML rapi dari data jadwal untuk export Word.
+// Tiap kategori dipisah ke halaman baru (page-break) agar tidak menumpuk.
 function buatTabelJadwalHTML() {
   const judul = "JADWAL HARIAN";
   let html = `<h1>${judul}</h1><p>Dicetak pada ${escapeHtmlJadwal(
     tanggalCetakJadwal(),
   )}</p>`;
 
-  JADWAL_URUTAN.forEach((key) => {
+  JADWAL_URUTAN.forEach((key, urutanKe) => {
     const konfig = JADWAL_TABS[key];
     const baris = dataJadwalTerurut(key);
+    // Kategori pertama menyambung di halaman judul;
+    // kategori berikutnya mulai di halaman baru.
+    html += `<div style="${urutanKe === 0 ? "" : "page-break-before:always;"}">`;
     html += `<h2>${escapeHtmlJadwal(konfig.label)}</h2>`;
     if (baris.length === 0) {
-      html += `<p><em>Belum ada data.</em></p>`;
+      html += `<p><em>Belum ada data.</em></p></div>`;
       return;
     }
     html += `<table border="1" cellspacing="0" cellpadding="6">`;
@@ -2338,7 +2342,7 @@ function buatTabelJadwalHTML() {
       });
       html += `</tr>`;
     });
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
   });
 
   return html;
@@ -2363,7 +2367,7 @@ function namaFileJadwal(ekstensi) {
 // Word (.doc) — dapat dibuka dengan Microsoft Word.
 function exportJadwalWord() {
   tutupMenuExportJadwal();
-  const isi = `<!doctype html><html><head><meta charset="utf-8"><title>Jadwal Harian</title><style>body{font-family:Arial,Helvetica,sans-serif;}table{width:100%;border-collapse:collapse;font-size:12px;}th{background:#283593;color:#fff;text-align:left;padding:7px;border:1px solid #1a237e;}td{padding:6px;border:1px solid #cccccc;}h1{font-size:18px;margin:0 0 4px;}h2{font-size:14px;color:#283593;margin:18px 0 6px;}</style></head><body>${buatTabelJadwalHTML()}</body></html>`;
+  const isi = `<!doctype html><html><head><meta charset="utf-8"><title>Jadwal Harian</title><style>body{font-family:Arial,Helvetica,sans-serif;}table{width:100%;border-collapse:collapse;font-size:12px;}th{background:#283593;color:#fff;text-align:left;padding:7px;border:1px solid #1a237e;}td{padding:6px;border:1px solid #cccccc;}h1{font-size:18px;margin:0 0 4px;}h2{font-size:14px;color:#283593;margin:18px 0 6px;}tr{page-break-inside:avoid;}</style></head><body>${buatTabelJadwalHTML()}</body></html>`;
   unduhBlobJadwal(
     new Blob(["\uFEFF" + isi], { type: "application/msword" }),
     namaFileJadwal("doc"),
@@ -2376,19 +2380,104 @@ function exportJadwalWord() {
   }
 }
 
-// Excel (.xls) — memakai format HTML table yang dikenali Excel
-// (lebih rapi daripada CSV dan kolom langsung terpisah).
+// Excel (.xls) — memakai format HTML yang dikenali Excel.
+// Setiap kategori (Kunjungan, Pemakaian Ruang, Balai BRI, Per Program)
+// dibuat sebagai SHEET/lembar TERPISAH (bukan satu halaman).
 function exportJadwalExcel() {
   tutupMenuExportJadwal();
-  const isi = `<!doctype html><html><head><meta charset="utf-8"><title>Jadwal Harian</title></head><body>${buatTabelJadwalHTML()}</body></html>`;
+
+  const esc = escapeHtmlJadwal;
+  const namaSheet = {
+    kunjungan: "Kunjungan",
+    ruang: "Pemakaian Ruang",
+    balai: "Balai BRI",
+    program: "Per Program",
+  };
+
+  // XML namespace khusus Excel agar <x:ExcelWorkbook> dikenali.
+  let xml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Styles>
+ <Style ss:ID="judul"><Font ss:Bold="1" ss:Size="14" ss:Color="#1A237E"/></Style>
+ <Style ss:ID="sub"><Font ss:Size="10" ss:Color="#4F596D"/></Style>
+ <Style ss:ID="head"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#283593" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders>
+  <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1A237E"/>
+  <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1A237E"/>
+  <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1A237E"/>
+  <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1A237E"/>
+ </Borders></Style>
+ <Style ss:ID="sel"><Borders>
+  <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+  <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+  <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+  <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+ </Borders></Style>
+</Styles>`;
+
+  JADWAL_URUTAN.forEach((key) => {
+    const konfig = JADWAL_TABS[key];
+    const baris = dataJadwalTerurut(key);
+    const jumlahKolom = konfig.headers.length + 1;
+
+    xml += `<Worksheet ss:Name="${esc(namaSheet[key])}"><Table>`;
+    konfig.headers.forEach((h, i) => {
+      xml += `<Column ss:Index="${i + 1}" ss:AutoFitWidth="0" ss:Width="${
+        i === 0 ? 40 : 120
+      }"/>`;
+    });
+    xml += `<Column ss:Index="${jumlahKolom}" ss:AutoFitWidth="0" ss:Width="120"/>`;
+
+    // Judul + tanggal cetak di dalam sheet
+    xml += `<Row><Cell ss:StyleID="judul"><Data ss:Type="String">${esc(
+      konfig.label,
+    )}</Data></Cell></Row>`;
+    xml += `<Row><Cell ss:StyleID="sub"><Data ss:Type="String">${esc(
+      `Dicetak pada ${tanggalCetakJadwal()}`,
+    )}</Data></Cell></Row>`;
+    xml += `<Row></Row>`;
+
+    // Baris header tabel
+    xml += `<Row>`;
+    konfig.headers.forEach((h) => {
+      xml += `<Cell ss:StyleID="head"><Data ss:Type="String">${esc(
+        h,
+      )}</Data></Cell>`;
+    });
+    xml += `</Row>`;
+
+    if (baris.length === 0) {
+      xml += `<Row><Cell ss:StyleID="sel"><Data ss:Type="String">Belum ada data.</Data></Cell></Row>`;
+    } else {
+      baris.forEach((item, index) => {
+        xml += `<Row><Cell ss:StyleID="sel"><Data ss:Type="Number">${
+          index + 1
+        }</Data></Cell>`;
+        konfig.fields.forEach((fn) => {
+          xml += `<Cell ss:StyleID="sel"><Data ss:Type="String">${esc(
+            fn(item),
+          )}</Data></Cell>`;
+        });
+        xml += `</Row>`;
+      });
+    }
+
+    xml += `</Table></Worksheet>`;
+  });
+
+  xml += `</Workbook>`;
+
   unduhBlobJadwal(
-    new Blob(["\uFEFF" + isi], { type: "application/vnd.ms-excel" }),
+    new Blob(["\uFEFF" + xml], { type: "application/vnd.ms-excel" }),
     namaFileJadwal("xls"),
   );
   if (typeof showExportToast === "function") {
     showExportToast(
       "Excel berhasil diunduh",
-      "File .xls dapat dibuka dengan Microsoft Excel.",
+      "Tiap kategori berada di sheet terpisah dalam file .xls.",
     );
   }
 }
