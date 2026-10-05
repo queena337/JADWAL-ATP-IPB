@@ -21,70 +21,6 @@ let masterInstansi = [
 ];
 
 // ============================================
-// HAPUS PILIHAN LAMA (RUANGAN / PIC / TEMPAT)
-// ============================================
-// Entri berikut HANYA dihapus dari daftar pilihan yang ada, TIDAK diblokir.
-// Pengguna tetap bisa menambahkannya kembali lewat tombol "+ Tambah ...".
-function normalkanNama(nama) {
-  return String(nama || "")
-    .toLowerCase()
-    .replace(/\./g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-// Hapus dari daftar jika namanya cocok persis atau diawali pola (mis. gelar).
-function saringDaftarHapus(daftar, pola) {
-  if (!Array.isArray(daftar)) return { hasil: [], berubah: true };
-  const set = pola.map(normalkanNama);
-  const hasil = daftar.filter((item) => {
-    const n = normalkanNama(item);
-    return !set.some((p) => n === p || n.startsWith(p + " "));
-  });
-  return { hasil, berubah: hasil.length !== daftar.length };
-}
-
-function bersihkanPilihanLama() {
-  let berubah = false;
-
-  // Ruangan: hapus "Departemen Proteksi Tanaman".
-  const ruangan = saringDaftarHapus(masterRuangan, ["departemen proteksi tanaman"]);
-  if (ruangan.berubah) {
-    masterRuangan = ruangan.hasil;
-    berubah = true;
-  }
-
-  // PIC: hapus "Bonjok", "dr roza", "nurma".
-  const pic = saringDaftarHapus(masterPic, ["bonjok", "dr roza", "nurma"]);
-  if (pic.berubah) {
-    masterPic = pic.hasil;
-    berubah = true;
-  }
-
-  // Tempat/Lokasi: sisakan hanya ATP, STP, TNC.
-  if (Array.isArray(masterTempat)) {
-    const sisakan = ["atp", "stp", "tnc"];
-    const tempat = masterTempat.filter((item) =>
-      sisakan.includes(normalkanNama(item)),
-    );
-    if (tempat.length !== masterTempat.length) {
-      masterTempat = tempat;
-      berubah = true;
-    }
-  }
-
-  if (berubah) {
-    try {
-      localStorage.setItem("masterRuangan", JSON.stringify(masterRuangan));
-      localStorage.setItem("masterPic", JSON.stringify(masterPic));
-      localStorage.setItem("masterTempat", JSON.stringify(masterTempat));
-    } catch (_) {}
-  }
-
-  return berubah;
-}
-
-// ============================================
 // PEMBERSIHAN MASTER PIC
 // ============================================
 // Tidak ada lagi nama PIC yang diblokir — semua nama PIC yang ditambahkan
@@ -2141,22 +2077,359 @@ function resetMasterData() {
 }
 
 // ============================================
-// PRINT JADWAL
+// CETAK & UNDUH JADWAL HARIAN
 // ============================================
+// Data diambil LANGSUNG dari array sumber (kunjunganData, ruangData,
+// balaiData, programData) dan diurutkan berdasarkan tanggal + jam,
+// sehingga hasil cetak/unduh selalu rapi dan tidak acak-acakan.
+// ============================================
+
+const JADWAL_TABS = {
+  kunjungan: {
+    label: "Jadwal Kunjungan",
+    headers: [
+      "No",
+      "Nama Tamu",
+      "Instansi",
+      "Tanggal",
+      "Waktu",
+      "Jumlah",
+      "Tujuan",
+      "PIC",
+    ],
+    getData: () => kunjunganData,
+    fields: [
+      (it) => it.nama || "-",
+      (it) => it.instansi || "-",
+      (it) => formatTanggalJadwal(it.tanggal),
+      (it) => it.waktu || "-",
+      (it) => it.jumlahPengunjung || 0,
+      (it) => it.tujuan || "-",
+      (it) => it.pic || "-",
+    ],
+  },
+  ruang: {
+    label: "Jadwal Pemakaian Ruang",
+    headers: [
+      "No",
+      "Nama Kegiatan",
+      "Ruangan",
+      "Tanggal",
+      "Waktu",
+      "Kapasitas",
+      "PIC",
+    ],
+    getData: () => ruangData,
+    fields: [
+      (it) => it.kegiatan || "-",
+      (it) => it.ruangan || "-",
+      (it) => formatTanggalJadwal(it.tanggal),
+      (it) => it.waktu || "-",
+      (it) => (it.kapasitas ? `${it.kapasitas} orang` : "-"),
+      (it) => it.pic || "-",
+    ],
+  },
+  balai: {
+    label: "Jadwal Balai BRI",
+    headers: [
+      "No",
+      "Nama Kegiatan",
+      "Jenis Kegiatan",
+      "Tanggal",
+      "Waktu",
+      "Ruangan",
+      "PIC",
+    ],
+    getData: () => balaiData,
+    fields: [
+      (it) => it.kegiatan || "-",
+      (it) => it.jenis || "-",
+      (it) => formatTanggalJadwal(it.tanggal),
+      (it) => it.waktu || "-",
+      (it) => it.ruangan || "-",
+      (it) => it.pic || "-",
+    ],
+  },
+  program: {
+    label: "Jadwal Per Program",
+    headers: [
+      "No",
+      "Nama Program",
+      "Kegiatan",
+      "Tanggal",
+      "Waktu",
+      "Lokasi",
+      "PIC",
+    ],
+    getData: () => programData,
+    fields: [
+      (it) => it.program || "-",
+      (it) => it.kegiatan || "-",
+      (it) => formatTanggalJadwal(it.tanggal),
+      (it) => it.waktu || "-",
+      (it) => it.lokasi || "-",
+      (it) => it.pic || "-",
+    ],
+  },
+};
+
+// Urutan kategori pada dokumen agar konsisten
+const JADWAL_URUTAN = ["kunjungan", "ruang", "balai", "program"];
+
+// Mengubah "2026-06-29" menjadi "29 Juni 2026".
+// Nilai yang tidak dikenali dikembalikan apa adanya.
+function formatTanggalJadwal(tanggal) {
+  if (!tanggal) return "-";
+  const bagian = String(tanggal).split("-");
+  if (bagian.length !== 3) return String(tanggal);
+  const bulan = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+  const bulanIndex = parseInt(bagian[1], 10) - 1;
+  if (bulanIndex < 0 || bulanIndex > 11) return String(tanggal);
+  return `${parseInt(bagian[2], 10)} ${bulan[bulanIndex]} ${bagian[0]}`;
+}
+
+// Angka kecil (mis. "08:00 - 09:30" -> "08:00") untuk keperluan urut.
+function jamMulaiJadwal(waktu) {
+  const cocok = String(waktu || "").match(/(\d{1,2})[:.](\d{2})/);
+  if (!cocok) return 24 * 60;
+  return parseInt(cocok[1], 10) * 60 + parseInt(cocok[2], 10);
+}
+
+// Menyalin + mengurutkan data: tanggal menaik, lalu jam menaik, lalu nama.
+function dataJadwalTerurut(key) {
+  const konfig = JADWAL_TABS[key];
+  if (!konfig) return [];
+  return konfig
+    .getData()
+    .slice()
+    .sort((a, b) => {
+      const ta = String(a.tanggal || "");
+      const tb = String(b.tanggal || "");
+      if (ta !== tb) return ta < tb ? -1 : 1;
+      const ja = jamMulaiJadwal(a.waktu);
+      const jb = jamMulaiJadwal(b.waktu);
+      if (ja !== jb) return ja - jb;
+      const na = String(a.nama || a.kegiatan || a.program || "");
+      const nb = String(b.nama || b.kegiatan || b.program || "");
+      return na.localeCompare(nb, "id");
+    });
+}
+
+function escapeHtmlJadwal(nilai) {
+  return String(nilai == null ? "" : nilai)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function tanggalCetakJadwal() {
+  return new Date().toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+// Isi header cetak (tanggal + footer) sebelum mencetak.
+function siapkanHeaderCetakJadwal() {
+  const now = tanggalCetakJadwal();
+  const printDate = document.getElementById("printDate");
+  if (printDate) printDate.textContent = now;
+  const jadwalPrintTanggal = document.getElementById("jadwalPrintTanggal");
+  if (jadwalPrintTanggal) {
+    jadwalPrintTanggal.textContent = `Dicetak pada ${now}`;
+  }
+}
+
+// Menutup dropdown export bila terbuka.
+function tutupMenuExportJadwal() {
+  const menu = document.getElementById("jadwalExportMenu");
+  if (!menu) return;
+  menu.classList.remove("open");
+  const tombol = menu.querySelector(".btn-print");
+  if (tombol) tombol.setAttribute("aria-expanded", "false");
+}
+
+function toggleJadwalExportMenu(event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById("jadwalExportMenu");
+  if (!menu) return;
+  const akanDibuka = !menu.classList.contains("open");
+  menu.classList.toggle("open", akanDibuka);
+  const tombol = menu.querySelector(".btn-print");
+  if (tombol) tombol.setAttribute("aria-expanded", String(akanDibuka));
+}
+
+// Menutup dropdown saat klik di luar area atau tombol Escape.
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("jadwalExportMenu");
+  if (menu && !menu.contains(e.target)) tutupMenuExportJadwal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") tutupMenuExportJadwal();
+});
+
+// Cetak melalui dialog browser (pengguna bisa memilih printer fisik
+// atau "Save as PDF" bila printer virtual tersedia).
 function printJadwal() {
-  const now = new Date();
-  document.getElementById("printDate").textContent = now.toLocaleDateString(
-    "id-ID",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    },
-  );
+  tutupMenuExportJadwal();
+  siapkanHeaderCetakJadwal();
+  document.body.classList.remove("printing-laporan");
   window.print();
+}
+
+// Unduh sebagai PDF: memakai dialog cetak browser.
+function exportJadwalPDF() {
+  tutupMenuExportJadwal();
+  siapkanHeaderCetakJadwal();
+  document.body.classList.remove("printing-laporan");
+  setTimeout(() => window.print(), 150);
+  if (typeof showExportToast === "function") {
+    showExportToast(
+      "PDF siap dibuat",
+      "Pada dialog cetak pilih \"Save as PDF\" lalu simpan.",
+    );
+  }
+}
+
+// Membuat <table> HTML rapi dari data jadwal untuk export Word/Excel/CSV.
+function buatTabelJadwalHTML() {
+  const judul = "JADWAL HARIAN";
+  let html = `<h1>${judul}</h1><p>Dicetak pada ${escapeHtmlJadwal(
+    tanggalCetakJadwal(),
+  )}</p>`;
+
+  JADWAL_URUTAN.forEach((key) => {
+    const konfig = JADWAL_TABS[key];
+    const baris = dataJadwalTerurut(key);
+    html += `<h2>${escapeHtmlJadwal(konfig.label)}</h2>`;
+    if (baris.length === 0) {
+      html += `<p><em>Belum ada data.</em></p>`;
+      return;
+    }
+    html += `<table border="1" cellspacing="0" cellpadding="6">`;
+    html += `<thead><tr>`;
+    konfig.headers.forEach((h) => {
+      html += `<th>${escapeHtmlJadwal(h)}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+    baris.forEach((item, index) => {
+      html += `<tr><td>${index + 1}</td>`;
+      konfig.fields.forEach((fn) => {
+        html += `<td>${escapeHtmlJadwal(fn(item))}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table>`;
+  });
+
+  return html;
+}
+
+function unduhBlobJadwal(blob, namaFile) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = namaFile;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function namaFileJadwal(ekstensi) {
+  const tanggal = new Date().toISOString().split("T")[0];
+  return `Jadwal_Harian_${tanggal}.${ekstensi}`;
+}
+
+// Word (.doc) — dapat dibuka dengan Microsoft Word.
+function exportJadwalWord() {
+  tutupMenuExportJadwal();
+  const isi = `<!doctype html><html><head><meta charset="utf-8"><title>Jadwal Harian</title><style>body{font-family:Arial,Helvetica,sans-serif;}table{width:100%;border-collapse:collapse;font-size:12px;}th{background:#283593;color:#fff;text-align:left;padding:7px;border:1px solid #1a237e;}td{padding:6px;border:1px solid #cccccc;}h1{font-size:18px;margin:0 0 4px;}h2{font-size:14px;color:#283593;margin:18px 0 6px;}</style></head><body>${buatTabelJadwalHTML()}</body></html>`;
+  unduhBlobJadwal(
+    new Blob(["\uFEFF" + isi], { type: "application/msword" }),
+    namaFileJadwal("doc"),
+  );
+  if (typeof showExportToast === "function") {
+    showExportToast(
+      "Word berhasil diunduh",
+      "File .doc dapat dibuka dengan Microsoft Word.",
+    );
+  }
+}
+
+// Excel (.xls) — memakai format HTML table yang dikenali Excel
+// (lebih rapi daripada CSV dan kolom langsung terpisah).
+function exportJadwalExcel() {
+  tutupMenuExportJadwal();
+  const isi = `<!doctype html><html><head><meta charset="utf-8"><title>Jadwal Harian</title></head><body>${buatTabelJadwalHTML()}</body></html>`;
+  unduhBlobJadwal(
+    new Blob(["\uFEFF" + isi], { type: "application/vnd.ms-excel" }),
+    namaFileJadwal("xls"),
+  );
+  if (typeof showExportToast === "function") {
+    showExportToast(
+      "Excel berhasil diunduh",
+      "File .xls dapat dibuka dengan Microsoft Excel.",
+    );
+  }
+}
+
+// CSV (.csv) — dipisah per kategori dengan baris judul.
+function exportJadwalCSV() {
+  tutupMenuExportJadwal();
+  const esc = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const lines = [];
+  lines.push(esc("JADWAL HARIAN"));
+  lines.push(esc(`Dicetak pada ${tanggalCetakJadwal()}`));
+  lines.push("");
+
+  JADWAL_URUTAN.forEach((key) => {
+    const konfig = JADWAL_TABS[key];
+    const baris = dataJadwalTerurut(key);
+    lines.push(esc(konfig.label));
+    lines.push(konfig.headers.map(esc).join(","));
+    if (baris.length === 0) {
+      lines.push(esc("Belum ada data."));
+    } else {
+      baris.forEach((item, index) => {
+        const sel = [index + 1].concat(konfig.fields.map((fn) => fn(item)));
+        lines.push(sel.map(esc).join(","));
+      });
+    }
+    lines.push("");
+  });
+
+  unduhBlobJadwal(
+    new Blob(["\uFEFF" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    }),
+    namaFileJadwal("csv"),
+  );
+  if (typeof showExportToast === "function") {
+    showExportToast(
+      "CSV berhasil diunduh",
+      "File .csv dapat dibuka dengan Excel atau Google Sheets.",
+    );
+  }
 }
 
 // ============================================

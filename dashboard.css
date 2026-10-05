@@ -380,6 +380,94 @@ body {
   transform: scale(1.02);
 }
 
+/* ===== MENU CETAK / UNDUH JADWAL ===== */
+.export-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.export-menu-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1200;
+  width: 250px;
+  padding: 8px;
+  border: 1px solid #dfe5f2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 16px 38px rgba(26, 35, 126, 0.2);
+}
+
+.export-menu.open .export-menu-panel {
+  display: block;
+}
+
+.export-menu-title {
+  padding: 6px 10px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #eef1f8;
+  color: #7a8399;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #20283d;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.export-menu-item:hover {
+  background: #f2f5ff;
+}
+
+.emi-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 9px;
+  background: #eef1fb;
+  font-size: 16px;
+}
+
+.emi-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.emi-text strong {
+  color: #20283d;
+  font-size: 13px;
+}
+
+.emi-text small {
+  color: #7a8399;
+  font-size: 11px;
+}
+
+/* Header khusus tampilan cetak (tidak terlihat di layar) */
+#jadwalPrintHeader {
+  display: none;
+}
+
 .btn-delete {
   background: #f44336;
   color: #fff;
@@ -1598,6 +1686,8 @@ tbody tr:hover {
   .btn-edit,
   .btn-filter,
   .btn-export,
+  .export-menu,
+  .export-menu-panel,
   .modal,
   .tab-navigation,
   #page-dashboard,
@@ -1623,15 +1713,74 @@ tbody tr:hover {
   #printFooter {
     display: block !important;
   }
+  #jadwalPrintHeader {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 3px solid #1a237e !important;
+  }
+  #jadwalPrintHeader span {
+    display: block !important;
+    margin-bottom: 3px !important;
+    color: #3949ab !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.14em !important;
+  }
+  #jadwalPrintHeader h1 {
+    margin: 0 !important;
+    color: #1a237e !important;
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+  }
+  #jadwalPrintHeader p {
+    margin: 0 !important;
+    color: #4f596d !important;
+    font-size: 9px !important;
+  }
+  #page-jadwal table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10px !important;
+  }
+  #page-jadwal table th {
+    background: #283593 !important;
+    color: #fff !important;
+    padding: 7px 6px !important;
+    border: 1px solid #1a237e !important;
+    text-align: left !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #page-jadwal table td {
+    padding: 6px !important;
+    border: 1px solid #ddd !important;
+    color: #111827 !important;
+    vertical-align: top !important;
+  }
+  #page-jadwal table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  #page-jadwal table thead {
+    display: table-header-group;
+  }
+  #page-jadwal table th:last-child,
+  #page-jadwal table td:last-child {
+    display: none !important;
+  }
+  #page-jadwal .table-wrapper {
+    overflow: visible !important;
+  }
   .main-content {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
   }
   #page-laporan {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    display: none !important;
   }
   body.printing-laporan #page-jadwal {
     display: none !important;

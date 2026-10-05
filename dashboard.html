@@ -394,12 +394,84 @@
       <!-- ========================================== -->
       <div id="page-jadwal" class="page-content">
         <div class="card" style="padding: 24px">
+          <div id="jadwalPrintHeader">
+            <div>
+              <span>SISTEM PENJADWALAN · ATP IPB</span>
+              <h1>JADWAL HARIAN</h1>
+            </div>
+            <p id="jadwalPrintTanggal"></p>
+          </div>
           <div class="card-header">
             <h3>📋 Manajemen Jadwal</h3>
             <div style="display: flex; gap: 10px; flex-wrap: wrap">
-              <button class="btn-print" onclick="printJadwal()">
-                🖨️ Cetak
-              </button>
+              <div class="export-menu" id="jadwalExportMenu">
+                <button
+                  class="btn-print"
+                  onclick="toggleJadwalExportMenu(event)"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  🖨️ Cetak / Unduh ▾
+                </button>
+                <div class="export-menu-panel" id="jadwalExportPanel">
+                  <div class="export-menu-title">Cetak / Unduh Jadwal</div>
+                  <button
+                    class="export-menu-item"
+                    onclick="printJadwal()"
+                    data-export="print"
+                  >
+                    <span class="emi-icon">🖨️</span>
+                    <span class="emi-text">
+                      <strong>Cetak (Printer)</strong>
+                      <small>Kirim langsung ke printer</small>
+                    </span>
+                  </button>
+                  <button
+                    class="export-menu-item"
+                    onclick="exportJadwalPDF()"
+                    data-export="pdf"
+                  >
+                    <span class="emi-icon">📕</span>
+                    <span class="emi-text">
+                      <strong>PDF (.pdf)</strong>
+                      <small>Simpan / cetak sebagai PDF</small>
+                    </span>
+                  </button>
+                  <button
+                    class="export-menu-item"
+                    onclick="exportJadwalWord()"
+                    data-export="word"
+                  >
+                    <span class="emi-icon">📄</span>
+                    <span class="emi-text">
+                      <strong>Word (.doc)</strong>
+                      <small>Microsoft Word</small>
+                    </span>
+                  </button>
+                  <button
+                    class="export-menu-item"
+                    onclick="exportJadwalExcel()"
+                    data-export="excel"
+                  >
+                    <span class="emi-icon">📗</span>
+                    <span class="emi-text">
+                      <strong>Excel (.xls)</strong>
+                      <small>Microsoft Excel</small>
+                    </span>
+                  </button>
+                  <button
+                    class="export-menu-item"
+                    onclick="exportJadwalCSV()"
+                    data-export="csv"
+                  >
+                    <span class="emi-icon">📊</span>
+                    <span class="emi-text">
+                      <strong>CSV (.csv)</strong>
+                      <small>Data teks / Google Sheets</small>
+                    </span>
+                  </button>
+                </div>
+              </div>
               <button class="btn-add" onclick="tambahJadwal()">+ Tambah</button>
               <button
                 class="btn-add"
