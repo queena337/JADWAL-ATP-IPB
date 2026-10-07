@@ -785,27 +785,45 @@ window.getDataRealtimeAdmin = function () {
   };
 };
 
-// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi", "Novia Putri Jelita",
-// "Novi") menjadi nama yang benar ("Novia Putri Jelita S.Pi"). Dijalankan
-// sekali saat data dimuat agar jadwal/event yang sudah tersimpan ikut terupdate.
+// Perbaikan nama PIC lama menjadi nama yang benar ("Novia Putri Jelita S.Pi").
+// Menangkap semua varian lama yang mungkin tersimpan di data pengguna:
+//   "Novi", "Novi Putri Jelita", "Novi Putri Jelita S.Pi",
+//   "Novia Putri Jelita", "Novia".
+// Dijalankan saat data dimuat agar jadwal/event/master PIC yang sudah
+// tersimpan ikut terupdate, lalu disimpan ulang ke localStorage.
 function perbaikiNamaPicLama() {
   const BENAR = "Novia Putri Jelita S.Pi";
   const VARIAN_LAMA = [
+    "Novi",
+    "Novi Putri Jelita",
     "Novi Putri Jelita S.Pi",
     "Novia Putri Jelita",
-    "Novi Putri Jelita",
-    "Novi",
+    "Novia",
   ];
   const ganti = (v) => (VARIAN_LAMA.includes(v) ? BENAR : v);
+  let berubah = false;
   [kunjunganData, ruangData, balaiData, programData, eventData].forEach(
     (arr) => {
       if (!Array.isArray(arr)) return;
       arr.forEach((item) => {
-        if (item && typeof item.pic === "string") item.pic = ganti(item.pic);
+        if (item && typeof item.pic === "string") {
+          const baru = ganti(item.pic);
+          if (baru !== item.pic) {
+            item.pic = baru;
+            berubah = true;
+          }
+        }
       });
     },
   );
-  if (Array.isArray(masterPic)) masterPic = masterPic.map(ganti);
+  if (Array.isArray(masterPic)) {
+    masterPic = masterPic.map((nama) => {
+      const baru = ganti(nama);
+      if (baru !== nama) berubah = true;
+      return baru;
+    });
+  }
+  return berubah;
 }
 
 function muatSemuaData() {
@@ -846,7 +864,9 @@ function muatSemuaData() {
     if (savedNextBalaiId) nextBalaiId = parseInt(savedNextBalaiId) || 1;
     if (savedNextProgramId) nextProgramId = parseInt(savedNextProgramId) || 2;
     if (savedNextEventId) nextEventId = parseInt(savedNextEventId) || 1;
-    perbaikiNamaPicLama();
+    // Perbaiki nama PIC lama yang tersimpan; bila ada yang berubah, simpan
+    // ulang agar data lama tidak muncul lagi dan ikut tersinkron ke Firebase.
+    if (perbaikiNamaPicLama()) simpanSemuaData();
   } catch (e) {
     console.log("Gagal memuat data:", e);
   }
