@@ -135,7 +135,7 @@ let kunjunganData = [
     tanggal: "2026-06-29",
     waktu: "10:00 - 11:00",
     tujuan: "Kunjungan",
-    pic: "Novi",
+    pic: "Novia",
     jumlahPengunjung: 100,
   },
 ];
@@ -785,13 +785,18 @@ window.getDataRealtimeAdmin = function () {
   };
 };
 
-// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi") menjadi nama yang
-// benar ("Novia Putri Jelita S.Pi"). Dijalankan sekali saat data dimuat
-// agar jadwal/event yang sudah tersimpan ikut terupdate.
+// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi", "Novia Putri Jelita",
+// "Novi") menjadi nama yang benar ("Novia Putri Jelita S.Pi"). Dijalankan
+// sekali saat data dimuat agar jadwal/event yang sudah tersimpan ikut terupdate.
 function perbaikiNamaPicLama() {
-  const SALAH = "Novi Putri Jelita S.Pi";
   const BENAR = "Novia Putri Jelita S.Pi";
-  const ganti = (v) => (v === SALAH ? BENAR : v);
+  const VARIAN_LAMA = [
+    "Novi Putri Jelita S.Pi",
+    "Novia Putri Jelita",
+    "Novi Putri Jelita",
+    "Novi",
+  ];
+  const ganti = (v) => (VARIAN_LAMA.includes(v) ? BENAR : v);
   [kunjunganData, ruangData, balaiData, programData, eventData].forEach(
     (arr) => {
       if (!Array.isArray(arr)) return;
@@ -4681,7 +4686,7 @@ function resetDataFromUser() {
       tanggal: "2026-06-29",
       waktu: "10:00 - 11:00",
       tujuan: "Kunjungan",
-      pic: "Novi",
+      pic: "Novia",
       jumlahPengunjung: 100,
     },
   ];

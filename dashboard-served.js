@@ -43,7 +43,7 @@ let kunjunganData = [
     tanggal: "2026-06-29",
     waktu: "10:00 - 11:00",
     tujuan: "Kunjungan",
-    pic: "Novi",
+    pic: "Novia",
     jumlahPengunjung: 100,
   },
 ];
@@ -592,13 +592,18 @@ window.getDataRealtimeAdmin = function () {
   };
 };
 
-// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi") menjadi nama yang
-// benar ("Novia Putri Jelita S.Pi"). Dijalankan sekali saat data dimuat
-// agar jadwal/event yang sudah tersimpan ikut terupdate.
+// Perbaikan nama PIC lama ("Novi Putri Jelita S.Pi", "Novia Putri Jelita",
+// "Novi") menjadi nama yang benar ("Novia Putri Jelita S.Pi"). Dijalankan
+// sekali saat data dimuat agar jadwal/event yang sudah tersimpan ikut terupdate.
 function perbaikiNamaPicLama() {
-  const SALAH = "Novi Putri Jelita S.Pi";
   const BENAR = "Novia Putri Jelita S.Pi";
-  const ganti = (v) => (v === SALAH ? BENAR : v);
+  const VARIAN_LAMA = [
+    "Novi Putri Jelita S.Pi",
+    "Novia Putri Jelita",
+    "Novi Putri Jelita",
+    "Novi",
+  ];
+  const ganti = (v) => (VARIAN_LAMA.includes(v) ? BENAR : v);
   [kunjunganData, ruangData, balaiData, programData, eventData].forEach(
     (arr) => {
       if (!Array.isArray(arr)) return;
@@ -1595,7 +1600,9 @@ window.pulihkanDataDariServer = async function () {
       if (f.doubleValue !== undefined) return f.doubleValue;
       if (f.booleanValue !== undefined) return f.booleanValue;
       if (f.arrayValue !== undefined)
-        return (f.arrayValue.values || []).map((v) => keObjek(v.mapValue.fields));
+        return (f.arrayValue.values || []).map((v) =>
+          keObjek(v.mapValue.fields),
+        );
       if (f.mapValue !== undefined) return keObjek(f.mapValue.fields);
       return undefined;
     };
@@ -1959,7 +1966,9 @@ function showEventDetail(tanggal) {
 
   container.innerHTML = events
     .map((e) => {
-      const warna = /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(e.warna) ? e.warna : "#111827";
+      const warna = /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(e.warna)
+        ? e.warna
+        : "#111827";
       return `
         <div style="padding:8px 12px;background:#fff;border-radius:8px;margin-bottom:6px;border-left:4px solid ${warna};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
@@ -2003,7 +2012,10 @@ function tampilkanDetailEvent(id) {
   const event = eventData.find((item) => item.id === id);
   if (!event) return;
 
-  const namaEvent = (event.nama || "-").replace(/^(≡ƒôï|≡ƒÅó|≡ƒÅ¢∩╕Å|≡ƒôè)\s*/u, "");
+  const namaEvent = (event.nama || "-").replace(
+    /^(≡ƒôï|≡ƒÅó|≡ƒÅ¢∩╕Å|≡ƒôè)\s*/u,
+    "",
+  );
   document.getElementById("detailEventNama").textContent = namaEvent;
   document.getElementById("detailEventTanggal").textContent =
     `${getEventStartKey(event)} sd. ${getEventEndKey(event)}`;
@@ -3551,7 +3563,7 @@ function resetDataFromUser() {
       tanggal: "2026-06-29",
       waktu: "10:00 - 11:00",
       tujuan: "Kunjungan",
-      pic: "Novi",
+      pic: "Novia",
       jumlahPengunjung: 100,
     },
   ];
